@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>Révision - Verbes irréguliers</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --correct: #16a34a;
+            --wrong: #dc2626;
+            --border: #e2e8f0;
+            --surface: #f1f5f9;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #3b82f6;
+                --primary-hover: #60a5fa;
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text: #e2e8f0;
+                --muted: #94a3b8;
+                --correct: #4ade80;
+                --wrong: #f87171;
+                --border: #334155;
+                --surface: #0f172a;
+            }
+            .card, .bubble-section, .modal-content { background: #334155 !important; }
+            .card .french-word { color: #f1f5f9 !important; }
+            .btn-list { background: #334155; color: #cbd5e1; }
+            .btn-list:hover { background: #475569; }
+            .bubble-btn { background: #1e293b; color: var(--text); }
+            .bubble-btn:hover { background: #0f172a; }
+            .next-card-btn { background: #e2e8f0; color: #0f172a; }
+            .next-card-btn:hover { background: #cbd5e1; }
+            .verb-table th { background: #1e293b; color: #cbd5e1; }
+            .explanation-box.correct { background: #14532d; color: #bbf7d0; border-color: #166534; }
+            .explanation-box.wrong { background: #7f1d1d; color: #fecaca; border-color: #991b1b; }
+            input[type="text"] { background: #0f172a; color: var(--text); }
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 520px;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header h1 {
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .header-buttons {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-list {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-list:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-list:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .stats {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-container {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 3px;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card .french-word {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--text);
+        }
+
+        .card .base-verb {
+            font-size: 0.95rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .btn-speak {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s, transform 0.2s;
+        }
+
+        .btn-speak:hover { opacity: 1; transform: scale(1.15); }
+
+        .input-group {
+            margin-bottom: 14px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--muted);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--card-bg);
+            color: var(--text);
+        }
+
+        input[type="text"]:focus { border-color: var(--primary); }
+        input[type="text"].input-correct { border-color: var(--correct); }
+        input[type="text"].input-wrong { border-color: var(--wrong); }
+
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-dont-know {
+            background: #cbd5e1;
+            color: #334155;
+        }
+
+        .btn-dont-know:hover { background: #94a3b8; }
+
+        .feedback {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.correct {
+            background: #dcfce7;
+            color: var(--correct);
+            display: block;
+            animation: pop 0.3s ease;
+        }
+
+        .feedback.wrong {
+            background: #fee2e2;
+            color: var(--wrong);
+            display: block;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); opacity: 0.5; }
+            60% { transform: scale(1.03); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .bubble-section {
+            margin-top: 16px;
+            display: none;
+            background: var(--surface);
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .bubble-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .bubble-title {
+            font-size: 0.85rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .btn-translate {
+            background: #e2e8f0;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #475569;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-translate:hover { background: #cbd5e1; }
+
+        .sentence {
+            font-size: 1.05rem;
+            color: var(--text);
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .bubbles-container {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .bubble-btn {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+        }
+
+        .bubble-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+
+        .bubble-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+
+        .bubble-btn.correct-bubble {
+            background: #dcfce7 !important;
+            border-color: var(--correct) !important;
+            color: var(--correct) !important;
+            opacity: 1;
+        }
+
+        .bubble-btn.wrong-bubble {
+            background: #fee2e2 !important;
+            border-color: var(--wrong) !important;
+            color: var(--wrong) !important;
+            opacity: 1;
+        }
+
+        .shortcut-hint {
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .explanation-box {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            padding: 14px;
+            border-radius: 10px;
+            display: none;
+            text-align: left;
+            margin-top: 12px;
+        }
+
+        .explanation-box.correct {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            display: block;
+        }
+
+        .explanation-box.wrong {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            display: block;
+        }
+
+        .explanation-title {
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .explanation-section {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+        }
+
+        .next-card-btn {
+            margin-top: 14px;
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .next-card-btn:hover { background: #334155; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .close-btn:hover { color: var(--text); }
+
+        .modal-body {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 4px;
+        }
+
+        .verb-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .verb-table th, .verb-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        .verb-table th {
+            background: var(--surface);
+            color: var(--muted);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+
+        .verb-table td strong { color: var(--primary); }
+
+        .verb-mastery {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .mastery-new { background: #94a3b8; }
+        .mastery-learning { background: #f59e0b; }
+        .mastery-mastered { background: var(--correct); }
+        .mastery-weak { background: var(--wrong); }
+
+        .filter-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .reset-btn {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: var(--wrong);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .reset-btn:hover { background: #fecaca; }
+    
+
+/* ================= GAMING SKIN + RICH ANIMATIONS ================= */
+:root {
+    --primary: #7c3aed;
+    --primary-hover: #6d28d9;
+    --bg: #080d1c;
+    --card-bg: rgba(17, 25, 48, .94);
+    --text: #eef2ff;
+    --muted: #a5b4d4;
+    --correct: #34d399;
+    --wrong: #fb7185;
+    --border: rgba(148, 163, 214, .22);
+    --surface: rgba(30, 41, 75, .72);
+    --neon: #8b5cf6;
+}
+* { -webkit-tap-highlight-color: transparent; }
+body {
+    background:
+      radial-gradient(ellipse at 12% 8%, rgba(124,58,237,.24), transparent 34%),
+      radial-gradient(ellipse at 88% 82%, rgba(14,165,233,.18), transparent 32%),
+      linear-gradient(145deg, #070b17 0%, #10172e 52%, #080d1c 100%);
+    background-attachment: fixed;
+    color: var(--text);
+    overflow-x: hidden;
+}
+body::before, body::after {
+    content: "";
+    position: fixed;
+    width: 360px; height: 360px;
+    border-radius: 50%;
+    filter: blur(85px);
+    opacity: .13;
+    pointer-events: none;
+    z-index: -1;
+    animation: ambientFloat 14s ease-in-out infinite alternate;
+}
+body::before { background: #8b5cf6; top: -150px; left: -130px; }
+body::after { background: #06b6d4; bottom: -180px; right: -120px; animation-delay: -6s; }
+.container {
+    background: linear-gradient(155deg, rgba(23,32,59,.97), rgba(12,19,39,.97));
+    border: 1px solid rgba(167,139,250,.28);
+    border-radius: 24px;
+    box-shadow: 0 25px 70px rgba(0,0,0,.48), 0 0 35px rgba(124,58,237,.12), inset 0 1px rgba(255,255,255,.06);
+    backdrop-filter: blur(18px);
+    max-width: 560px;
+    position: relative;
+    overflow: hidden;
+    animation: appEnter .65s cubic-bezier(.2,.8,.2,1) both;
+}
+.container::before {
+    content: "";
+    position: absolute; inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, #22d3ee, #8b5cf6, #ec4899, #22d3ee);
+    background-size: 250% 100%;
+    animation: gradientRun 5s linear infinite;
+}
+.header h1 {
+    color: #c4b5fd;
+    text-shadow: 0 0 22px rgba(167,139,250,.38);
+    letter-spacing: -.5px;
+}
+.btn-list, .filter-btn, .reset-btn, .btn-translate {
+    border-radius: 12px;
+    transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.btn-list {
+    background: rgba(99,102,241,.13);
+    color: #dbeafe;
+    border-color: rgba(129,140,248,.28);
+}
+.btn-list:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 18px rgba(99,102,241,.2);
+    background: rgba(99,102,241,.25);
+}
+.stats {
+    color: #cbd5e1;
+    border-bottom-color: rgba(148,163,214,.2);
+}
+.progress-container {
+    height: 9px;
+    border-radius: 20px;
+    background: rgba(148,163,214,.16);
+    box-shadow: inset 0 2px 5px rgba(0,0,0,.25);
+}
+.progress-bar {
+    background: linear-gradient(90deg, #22d3ee, #8b5cf6, #d946ef);
+    background-size: 200% 100%;
+    box-shadow: 0 0 13px rgba(139,92,246,.65);
+    animation: progressGlow 3s linear infinite;
+}
+.card {
+    background: linear-gradient(145deg, rgba(40,52,91,.94), rgba(24,34,65,.94));
+    border: 1px solid rgba(167,139,250,.28);
+    border-radius: 19px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.06);
+    overflow: hidden;
+}
+.card::after {
+    content: "";
+    position: absolute;
+    inset: -80% -30%;
+    background: linear-gradient(110deg, transparent 43%, rgba(255,255,255,.055) 50%, transparent 57%);
+    transform: translateX(-70%);
+    animation: cardShine 7s ease-in-out infinite;
+    pointer-events: none;
+}
+.card .french-word {
+    color: #f5f3ff;
+    text-shadow: 0 0 24px rgba(167,139,250,.24);
+    font-size: 1.65rem;
+}
+.card .base-verb { color: #a5b4fc; }
+.btn-speak {
+    color: #c4b5fd;
+    filter: drop-shadow(0 0 8px rgba(167,139,250,.45));
+}
+input[type="text"] {
+    background: rgba(8,14,30,.78);
+    color: #f8fafc;
+    border: 1px solid rgba(148,163,214,.3);
+    border-radius: 12px;
+}
+input[type="text"]:focus {
+    border-color: #a78bfa;
+    box-shadow: 0 0 0 3px rgba(139,92,246,.16), 0 0 18px rgba(139,92,246,.12);
+}
+.input-group label { color: #c4b5fd; }
+.btn {
+    background: linear-gradient(110deg, #7c3aed, #6366f1 55%, #8b5cf6);
+    box-shadow: 0 7px 20px rgba(124,58,237,.28), inset 0 1px rgba(255,255,255,.18);
+    border-radius: 12px;
+    transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
+}
+.btn:hover {
+    background: linear-gradient(110deg, #8b5cf6, #6366f1 55%, #a78bfa);
+    transform: translateY(-2px);
+    box-shadow: 0 11px 25px rgba(124,58,237,.4);
+}
+.btn:active { transform: scale(.97); }
+.btn-dont-know {
+    background: rgba(148,163,184,.18);
+    color: #e2e8f0;
+    border: 1px solid rgba(148,163,184,.24);
+    box-shadow: none;
+}
+.btn-dont-know:hover { background: rgba(148,163,184,.28); }
+.feedback {
+    border: 1px solid transparent;
+    box-shadow: 0 8px 22px rgba(0,0,0,.16);
+}
+.feedback.correct {
+    background: rgba(16,185,129,.13);
+    color: #6ee7b7;
+    border-color: rgba(52,211,153,.35);
+}
+.feedback.wrong {
+    background: rgba(244,63,94,.12);
+    color: #fda4af;
+    border-color: rgba(251,113,133,.3);
+    animation: shakeSoft .38s ease;
+}
+.bubble-section {
+    background: rgba(15,23,48,.82);
+    border: 1px solid rgba(129,140,248,.28);
+    border-radius: 17px;
+}
+.bubble-title { color: #c4b5fd; }
+.sentence { color: #e2e8f0; }
+.bubble-btn {
+    background: rgba(30,41,75,.9);
+    color: #e2e8f0;
+    border-color: rgba(148,163,214,.28);
+    border-radius: 14px;
+}
+.bubble-btn:hover:not(:disabled) {
+    background: rgba(99,102,241,.2);
+    border-color: #a78bfa;
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 18px rgba(99,102,241,.18);
+}
+.bubble-btn.correct-bubble {
+    background: rgba(16,185,129,.18) !important;
+    color: #6ee7b7 !important;
+    box-shadow: 0 0 18px rgba(52,211,153,.18);
+}
+.bubble-btn.wrong-bubble {
+    background: rgba(244,63,94,.16) !important;
+    color: #fda4af !important;
+}
+.explanation-box.correct {
+    background: rgba(16,185,129,.12);
+    border-color: rgba(52,211,153,.28);
+    color: #d1fae5;
+}
+.explanation-box.wrong {
+    background: rgba(244,63,94,.1);
+    border-color: rgba(251,113,133,.25);
+    color: #ffe4e6;
+}
+.explanation-section { border-top-color: rgba(148,163,184,.2); }
+.next-card-btn {
+    background: linear-gradient(100deg, #312e81, #6d28d9);
+    border: 1px solid rgba(167,139,250,.28);
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(79,70,229,.2);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.next-card-btn:hover { background: linear-gradient(100deg, #4338ca, #7c3aed); transform: translateY(-2px); }
+.modal { background: rgba(2,6,23,.78); backdrop-filter: blur(9px); }
+.modal-content {
+    background: linear-gradient(145deg, #1e293b, #111827);
+    border: 1px solid rgba(167,139,250,.28);
+    color: #e2e8f0;
+    box-shadow: 0 25px 80px rgba(0,0,0,.55);
+    border-radius: 20px;
+}
+.modal-header { border-bottom-color: rgba(148,163,184,.2); }
+.modal-header h2 { color: #c4b5fd; }
+.verb-table th { background: #1e293b; color: #cbd5e1; }
+.verb-table td { border-bottom-color: rgba(148,163,184,.15); }
+.verb-table td strong { color: #c4b5fd; }
+.filter-btn { background: rgba(51,65,85,.7); color: #cbd5e1; border-color: rgba(148,163,184,.2); }
+.filter-btn.active { background: #6d28d9; color: white; }
+.reset-btn { background: rgba(244,63,94,.14); color: #fda4af; border-color: rgba(251,113,133,.25); }
+.close-btn { color: #cbd5e1; }
+.mastery-learning { background: #fbbf24; }
+
+@keyframes ambientFloat { from { transform: translate3d(0,0,0) scale(1); } to { transform: translate3d(65px,45px,0) scale(1.18); } }
+@keyframes appEnter { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes gradientRun { to { background-position: 250% 0; } }
+@keyframes progressGlow { to { background-position: 200% 0; } }
+@keyframes cardShine { 0%, 35% { transform: translateX(-70%); } 65%, 100% { transform: translateX(70%); } }
+@keyframes shakeSoft { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+@keyframes floatUp { to { transform: translate(var(--dx), -125px) rotate(var(--rot)); opacity: 0; } }
+@keyframes xpFloat { 0% { opacity: 0; transform: translateY(10px) scale(.7); } 20% { opacity: 1; } 100% { opacity: 0; transform: translateY(-48px) scale(1.15); } }
+@keyframes successPulse { 0% { box-shadow: 0 0 0 0 rgba(52,211,153,.35); } 100% { box-shadow: 0 0 0 18px rgba(52,211,153,0); } }
+.particle-layer {
+    position: fixed; inset: 0; overflow: hidden; pointer-events: none; z-index: 9999;
+}
+.game-particle {
+    position: absolute; left: var(--x); top: var(--y);
+    width: var(--size); height: var(--size);
+    border-radius: var(--radius);
+    background: var(--color);
+    box-shadow: 0 0 10px var(--color);
+    animation: floatUp var(--duration) cubic-bezier(.15,.7,.3,1) forwards;
+}
+.xp-float {
+    position: fixed; z-index: 9998; left: 50%; top: 42%;
+    color: #a7f3d0; font-weight: 900; font-size: 1.4rem;
+    text-shadow: 0 0 16px rgba(52,211,153,.8);
+    pointer-events: none; animation: xpFloat 1.1s ease-out forwards;
+}
+.card.correct-celebrate { animation: successPulse .55s ease-out, pop .3s ease; }
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+@media (max-width: 480px) {
+    body { padding: 10px; }
+    .container { padding: 18px; border-radius: 19px; }
+    .card .french-word { font-size: 1.45rem; }
+    .btn { padding: 12px 9px; font-size: .92rem; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📖 Révision</h1>
+        <div class="header-buttons">
+            <button type="button" class="btn-list" onclick="openModal()">📚 Verbes</button>
+            <button type="button" class="btn-list" id="review-btn" onclick="startReviewMode()" title="Réviser mes erreurs">🎯 Mes erreurs</button>
+        </div>
+    </div>
+
+    <div class="stats">
+        <span>Score : <strong id="score">0</strong> pts · <span id="mode-label">Mode : normal</span></span>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <span id="remaining-label">0</span>
+    </div>
+
+    <div class="card">
+        <button class="btn-speak" onclick="speakCurrent()" title="Écouter la prononciation">🔊</button>
+        <div class="french-word" id="french-word">-</div>
+        <div class="base-verb" id="base-verb">Base verbale : -</div>
+    </div>
+
+    <form id="quiz-form" onsubmit="handleSubmit(event)">
+        <div class="input-group">
+            <label for="preterit">Prétérit</label>
+            <input type="text" 
+                   id="preterit" 
+                   autocomplete="nope" 
+                   autocorrect="off" 
+                   autocapitalize="none" 
+                   spellcheck="false" 
+                   inputmode="verbatim" 
+                   required>
+        </div>
+
+        <div class="input-group">
+            <label for="past-participle">Participe Passé</label>
+            <input type="text" 
+                   id="past-participle" 
+                   autocomplete="nope" 
+                   autocorrect="off" 
+                   autocapitalize="none" 
+                   spellcheck="false" 
+                   inputmode="verbatim" 
+                   required>
+        </div>
+
+        <div class="btn-container">
+            <button type="button" class="btn btn-dont-know" onclick="handleDontKnow()">Je ne sais pas</button>
+            <button type="submit" class="btn" id="submit-btn">Vérifier</button>
+        </div>
+    </form>
+
+    <div id="feedback" class="feedback"></div>
+
+    <div id="bubble-section" class="bubble-section">
+        <div class="bubble-header">
+            <div class="bubble-title">💡 Test de la phrase</div>
+            <button type="button" class="btn-translate" id="translate-btn" onclick="toggleTranslation()">🇫🇷 Traduire</button>
+        </div>
+        <div class="sentence" id="sentence-text"></div>
+        <div class="bubbles-container" id="bubbles-container"></div>
+        <div class="shortcut-hint" id="shortcut-hint">Astuce : touches 1 / 2 / 3 pour choisir</div>
+        <div id="explanation-box" class="explanation-box"></div>
+        <button type="button" id="next-card-btn" class="next-card-btn" onclick="loadQuestion()">Verbe suivant ➔</button>
+    </div>
+</div>
+
+<div id="verb-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">📚 Liste de tous les verbes</h2>
+            <button class="close-btn" onclick="closeModal()" aria-label="Fermer">&times;</button>
+        </div>
+        <div class="filter-row">
+            <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Tous</button>
+            <button class="filter-btn" data-filter="weak" onclick="setFilter('weak')">⚠️ À revoir</button>
+            <button class="filter-btn" data-filter="mastered" onclick="setFilter('mastered')">✅ Maîtrisés</button>
+            <button class="filter-btn" data-filter="new" onclick="setFilter('new')">🆕 Nouveaux</button>
+            <button class="reset-btn" onclick="resetProgress()" title="Effacer toute la progression">Reset</button>
+        </div>
+        <div class="modal-body">
+            <table class="verb-table">
+                <thead>
+                    <tr>
+                        <th>État</th>
+                        <th>Français</th>
+                        <th>Base</th>
+                        <th>Prétérit / Participe</th>
+                    </tr>
+                </thead>
+                <tbody id="verb-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ===================== AUDIO MODERNE + ANTI-COUPURE =====================
+    let audioCtx = null;
+    let masterGain = null;
+    let keepAliveOsc = null;
+    let userHasInteracted = false;
+    let lastPlayTime = 0;
+
+    function ensureAudioContext() {
+        if (!audioCtx) {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            audioCtx = new AC();
+
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 1;
+            masterGain.connect(audioCtx.destination);
+
+            try {
+                keepAliveOsc = audioCtx.createOscillator();
+                const aliveGain = audioCtx.createGain();
+                keepAliveOsc.type = 'sine';
+                keepAliveOsc.frequency.value = 20;
+                aliveGain.gain.value = 0.00001;
+                keepAliveOsc.connect(aliveGain);
+                aliveGain.connect(audioCtx.destination);
+                keepAliveOsc.start();
+            } catch (e) { /* ignore */ }
+        }
+
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+        return audioCtx;
+    }
+
+    ['pointerdown', 'touchstart', 'keydown', 'click'].forEach(evt => {
+        window.addEventListener(evt, () => {
+            userHasInteracted = true;
+            ensureAudioContext();
+        }, { once: true, passive: true });
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+    });
+    window.addEventListener('focus', () => {
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+    });
+
+    function applyEnvelope(gain, ctx, peak, attack, decay, sustain, release, start, duration) {
+        const t = ctx.currentTime + start;
+        const safePeak = Math.max(peak, 0.0001);
+        const safeSustain = Math.max(sustain, 0.0001);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.exponentialRampToValueAtTime(safePeak, t + attack);
+        gain.gain.exponentialRampToValueAtTime(safeSustain, t + attack + decay);
+        const holdEnd = Math.max(t + attack + decay, t + duration - release);
+        gain.gain.setValueAtTime(safeSustain, holdEnd);
+        gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    }
+
+    function playNote(ctx, freq, startTime, duration, type, peak, detune = 0) {
+        const osc = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const gain2 = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + startTime);
+        osc.detune.setValueAtTime(detune, ctx.currentTime + startTime);
+
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(freq * 2, ctx.currentTime + startTime);
+        gain2.gain.setValueAtTime(0.12, ctx.currentTime + startTime);
+
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(4500, ctx.currentTime + startTime);
+        filter.frequency.exponentialRampToValueAtTime(1800, ctx.currentTime + startTime + duration);
+        filter.Q.value = 2;
+
+        osc.connect(gain);
+        osc2.connect(gain2);
+        gain2.connect(gain);
+        gain.connect(filter);
+        filter.connect(masterGain);
+
+        applyEnvelope(gain, ctx, peak, 0.008, 0.05, peak * 0.6, 0.08, startTime, duration);
+
+        osc.start(ctx.currentTime + startTime);
+        osc.stop(ctx.currentTime + startTime + duration + 0.02);
+        osc2.start(ctx.currentTime + startTime);
+        osc2.stop(ctx.currentTime + startTime + duration + 0.02);
+    }
+
+    function playTick() {
+        try {
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(1400, ctx.currentTime);
+            gain.gain.setValueAtTime(0.04, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(masterGain);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.06);
+        } catch (e) {}
+    }
+
+    function playSound(isCorrect) {
+        const now = performance.now();
+        if (now - lastPlayTime < 80) return;
+        lastPlayTime = now;
+
+        try {
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+
+            if (ctx.state === 'suspended') {
+                ctx.resume().then(() => playSoundInternal(ctx, isCorrect)).catch(() => {});
+            } else {
+                playSoundInternal(ctx, isCorrect);
+            }
+        } catch (e) { /* silencieux */ }
+    }
+
+    function playSoundInternal(ctx, isCorrect) {
+        if (isCorrect) {
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, i) => {
+                playNote(ctx, freq, i * 0.075, 0.28, 'triangle', 0.16);
+                playNote(ctx, freq * 2, i * 0.075, 0.22, 'sine', 0.05);
+            });
+            const pad = ctx.createOscillator();
+            const padGain = ctx.createGain();
+            pad.type = 'sine';
+            pad.frequency.setValueAtTime(1046.5, ctx.currentTime);
+            padGain.gain.setValueAtTime(0.0001, ctx.currentTime);
+            padGain.gain.linearRampToValueAtTime(0.03, ctx.currentTime + 0.1);
+            padGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+            pad.connect(padGain);
+            padGain.connect(masterGain);
+            pad.start(ctx.currentTime);
+            pad.stop(ctx.currentTime + 0.65);
+        } else {
+            const now = ctx.currentTime;
+            const osc = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+            const filter = ctx.createBiquadFilter();
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(220, now);
+            osc.frequency.exponentialRampToValueAtTime(90, now + 0.35);
+
+            osc2.type = 'square';
+            osc2.frequency.setValueAtTime(110, now);
+            osc2.frequency.exponentialRampToValueAtTime(45, now + 0.35);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1200, now);
+            filter.frequency.exponentialRampToValueAtTime(300, now + 0.35);
+            filter.Q.value = 6;
+
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(0.13, now + 0.015);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.4);
+
+            osc.connect(filter);
+            osc2.connect(filter);
+            filter.connect(gain);
+            gain.connect(masterGain);
+
+            osc.start(now); osc.stop(now + 0.42);
+            osc2.start(now); osc2.stop(now + 0.42);
+        }
+    }
+
+    function playStreak() {
+        try {
+            const ctx = ensureAudioContext();
+            if (!ctx) return;
+            [659.25, 830.61, 987.77, 1318.51].forEach((f, i) => {
+                playNote(ctx, f, i * 0.06, 0.35, 'sine', 0.12);
+            });
+        } catch (e) {}
+    }
+
+    function triggerVibration(isCorrect) {
+        if ('vibrate' in navigator) {
+            if (isCorrect) navigator.vibrate(80);
+            else navigator.vibrate([100, 50, 100]);
+        }
+    }
+
+    // ===================== SPEECH SYNTHESIS (voix anglaise forcée) =====================
+    let cachedEnglishVoice = null;
+    let voicesReady = false;
+
+    function pickEnglishVoice() {
+        if (!('speechSynthesis' in window)) return null;
+        const voices = window.speechSynthesis.getVoices();
+        if (!voices || voices.length === 0) return null;
+        // Priorité : en-GB exact, puis en-GB-*, puis en-US, puis en-*
+        return voices.find(v => v.lang === 'en-GB')
+            || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en-gb'))
+            || voices.find(v => v.lang === 'en-US')
+            || voices.find(v => v.lang && v.lang.toLowerCase().startsWith('en-'))
+            || null;
+    }
+
+    function refreshVoiceCache() {
+        const v = pickEnglishVoice();
+        if (v) {
+            cachedEnglishVoice = v;
+            voicesReady = true;
+        }
+    }
+
+    if ('speechSynthesis' in window) {
+        // Charger immédiatement si déjà disponible
+        refreshVoiceCache();
+        // Réagir au chargement asynchrone des voix
+        window.speechSynthesis.onvoiceschanged = refreshVoiceCache;
+        // Certains navigateurs (Chrome) déclenchent tardivement : re-essayer après un délai
+        setTimeout(refreshVoiceCache, 500);
+        setTimeout(refreshVoiceCache, 1500);
+    }
+
+    function speak(text, lang = 'en-GB') {
+        if (!('speechSynthesis' in window)) return;
+
+        // Cancel précédent
+        window.speechSynthesis.cancel();
+
+        // Si le cache est vide, retenter une fois
+        if (!cachedEnglishVoice) refreshVoiceCache();
+
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = lang;
+        u.rate = 0.9;
+        u.pitch = 1;
+
+        // Assigner explicitement la voix anglaise (force le navigateur à l'utiliser)
+        if (cachedEnglishVoice) {
+            u.voice = cachedEnglishVoice;
+            // Sur certains navigateurs, redéfinir lang avec la voix fonctionne mieux
+            u.lang = cachedEnglishVoice.lang || lang;
+        }
+
+        window.speechSynthesis.speak(u);
+    }
+
+    function speakCurrent() {
+        if (!currentItem) return;
+        speak(currentItem.bv);
+        setTimeout(() => speak(currentItem.preterit), 700);
+        setTimeout(() => speak(currentItem.pp), 1400);
+    }
+
+    // ===================== NETTOYAGE DES INPUTS (anti-accents) =====================
+    function sanitizeInput(event) {
+        const input = event.target;
+        // 1. Normalise NFD pour séparer les accents
+        // 2. Supprime les diacritiques
+        // 3. Ne garde que les lettres A-Z a-z
+        const sanitized = input.value
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-zA-Z]/g, '');
+
+        if (input.value !== sanitized) {
+            const pos = input.selectionStart;
+            input.value = sanitized;
+            // Repositionne le curseur approximativement
+            const newPos = Math.max(0, Math.min(sanitized.length, pos - (input.value.length - sanitized.length)));
+            try { input.setSelectionRange(newPos, newPos); } catch (e) {}
+        }
+    }
+
+    function attachSanitizers() {
+        ['preterit', 'past-participle'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.addEventListener('input', sanitizeInput);
+                el.addEventListener('blur', sanitizeInput);
+            }
+        });
+    }
+
+    // ===================== BASE DE DONNÉES =====================
+    const verbsDatabase = [
+        { 
+            fr: "Prendre", bv: "Take", preterit: "took", pp: "taken", 
+            variants: [
+                {
+                    sentence: "She _____ her umbrella before leaving.", sentenceFr: "Elle a pris son parapluie avant de partir.",
+                    answer: "took", options: ["take", "took", "taken"],
+                    rule: "<b>Prétérit simple</b> (action passée et révolue).",
+                    reason: "Le sujet réalise l'action directement. On écarte 'take' (présent) et 'taken' (qui exige un auxiliaire).",
+                    example: "<i>He took the train to London yesterday.</i>",
+                    deepDive: "Lorsqu'une action s'est produite à un moment précis du passé sans lien direct avec le présent, on utilise le Prétérit (2e colonne)."
+                },
+                {
+                    sentence: "Many pictures were _____ during the trip.", sentenceFr: "Beaucoup de photos ont été prises pendant le voyage.",
+                    answer: "taken", options: ["take", "took", "taken"],
+                    rule: "<b>Voix passive au passé (WERE + Participe Passé)</b>.",
+                    reason: "Le sujet (pictures) subit l'action. Après l'auxiliaire 'were', la grammaire impose le participe passé.",
+                    example: "<i>The decision was taken last week.</i>",
+                    deepDive: "Structure passive : le sujet subit l'action, l'auxiliaire 'were' exige la 3e colonne ('taken')."
+                }
+            ]
+        },
+        { 
+            fr: "Saigner", bv: "Bleed", preterit: "bled", pp: "bled", 
+            variants: [
+                {
+                    sentence: "The small cut started to _____ slightly.", sentenceFr: "La petite coupure a commencé à saigner légèrement.",
+                    answer: "bleed", options: ["bleed", "bled", "bleeding"],
+                    rule: "<b>Structure de l'infinitif (TO + Base Verbale)</b>.",
+                    reason: "Après la particule 'to', le verbe doit impérativement rester à l'infinitif pur (base verbale).",
+                    example: "<i>She began to bleed after the fall.</i>",
+                    deepDive: "Règle d'or : après la préposition 'to', le verbe ne se conjugue jamais et reste à l'état brut."
+                },
+                {
+                    sentence: "He has _____ on his new shirt.", sentenceFr: "Il a saigné sur sa nouvelle chemise.",
+                    answer: "bled", options: ["bleed", "bled", "blood"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "L'auxiliaire 'has' est suivi du participe passé 'bled'.",
+                    example: "<i>The fabric has bled during washing.</i>",
+                    deepDive: "Attention à ne pas confondre 'blood' (le nom commun) avec le verbe conjugué 'bled'."
+                }
+            ]
+        },
+        { 
+            fr: "Chuter / Tomber", bv: "Fall", preterit: "fell", pp: "fallen", 
+            variants: [
+                {
+                    sentence: "Sales have _____ significantly this month.", sentenceFr: "Les ventes ont chuté de manière significative ce mois-ci.",
+                    answer: "fallen", options: ["fall", "fell", "fallen"],
+                    rule: "<b>Present Perfect (HAS/HAVE + Participe Passé)</b>.",
+                    reason: "L'auxiliaire 'have' impose d'utiliser le participe passé 'fallen'.",
+                    example: "<i>Temperatures have fallen overnight.</i>",
+                    deepDive: "Action passée ayant une répercussion directe sur le bilan actuel."
+                },
+                {
+                    sentence: "He _____ off his bicycle yesterday.", sentenceFr: "Il est tombé de son vélo hier.",
+                    answer: "fell", options: ["fall", "fell", "fallen"],
+                    rule: "<b>Prétérit simple</b>.",
+                    reason: "Événement ponctuel et daté dans le passé. Le sujet fait l'action directement.",
+                    example: "<i>She fell asleep during the movie.</i>",
+                    deepDive: "Récit d'un fait accompli sans auxiliaire, on utilise la 2e colonne ('fell')."
+                }
+            ]
+        },
+        { 
+            fr: "Casser", bv: "Break", preterit: "broke", pp: "broken", 
+            variants: [
+                {
+                    sentence: "Be careful not to drop that _____ glass.", sentenceFr: "Fais attention de ne pas faire tomber ce verre cassé.",
+                    answer: "broken", options: ["break", "broke", "broken"],
+                    rule: "<b>Participe Passé en position d'adjectif qualificatif</b>.",
+                    reason: "Le verbe qualifie le nom 'glass' (un verre cassé).",
+                    example: "<i>A broken promise is hard to forget.</i>",
+                    deepDive: "Le participe passé d'un verbe irrégulier perd sa fonction purement verbale pour devenir un adjectif qualificatif."
+                },
+                {
+                    sentence: "She _____ her phone screen last night.", sentenceFr: "Elle a cassé l'écran de son téléphone la nuit dernière.",
+                    answer: "broke", options: ["break", "broke", "broken"],
+                    rule: "<b>Prétérit simple</b>.",
+                    reason: "Action passée unitaire où le sujet agit directement.",
+                    example: "<i>He broke the world record.</i>",
+                    deepDive: "Le prétérit simple 'broke' indique l'action de casser à un moment précis."
+                }
+            ]
+        },
+        { 
+            fr: "Devenir", bv: "Become", preterit: "became", pp: "become", 
+            variants: [
+                {
+                    sentence: "She has _____ an expert in coding.", sentenceFr: "Elle est devenue une experte en programmation.",
+                    answer: "become", options: ["become", "became", "becoming"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "Après 'has', on emploie le participe passé de become.",
+                    example: "<i>The weather has become much colder.</i>",
+                    deepDive: "Attention au piège de la 1ère et 3e colonne identiques (Become)."
+                }
+            ]
+        },
+        { 
+            fr: "Commencer", bv: "Begin", preterit: "began", pp: "begun", 
+            variants: [
+                {
+                    sentence: "The meeting has already _____.", sentenceFr: "La réunion a déjà commencé.",
+                    answer: "begun", options: ["begin", "began", "begun"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "Associé à l'auxiliaire 'has', le verbe begin prend sa forme en -un (begun).",
+                    example: "<i>The film has begun on time.</i>",
+                    deepDive: "Suite vocalique : Begin (I) -> Began (A) -> Begun (U)."
+                }
+            ]
+        },
+        { 
+            fr: "Choisir", bv: "Choose", preterit: "chose", pp: "chosen", 
+            variants: [
+                {
+                    sentence: "They have _____ the best hotel for the vacation.", sentenceFr: "Ils ont choisi le meilleur hôtel pour les vacances.",
+                    answer: "chosen", options: ["choose", "chose", "chosen"],
+                    rule: "<b>Present Perfect (HAVE + Participe Passé)</b>.",
+                    reason: "Avec l'auxiliaire 'have', on utilise le participe passé 'chosen'.",
+                    example: "<i>She chose a blue dress for the party.</i>",
+                    deepDive: "Le participe passé conserve le double 'o' et ajoute un -n ('chosen')."
+                }
+            ]
+        },
+        { 
+            fr: "Faire", bv: "Do", preterit: "did", pp: "done", 
+            variants: [
+                {
+                    sentence: "Have you _____ your homework yet?", sentenceFr: "As-tu déjà fait tes devoirs ?",
+                    answer: "done", options: ["do", "did", "done"],
+                    rule: "<b>Present Perfect interrogatif (HAVE + Participe Passé)</b>.",
+                    reason: "Dans une question au Present Perfect, l'auxiliaire 'have' exige le participe passé 'done'.",
+                    example: "<i>She has done a great job on this project.</i>",
+                    deepDive: "Piège classique entre le prétérit 'did' et le participe 'done'."
+                }
+            ]
+        },
+        { 
+            fr: "Boire", bv: "Drink", preterit: "drank", pp: "drunk", 
+            variants: [
+                {
+                    sentence: "He has _____ two cups of coffee this morning.", sentenceFr: "Il a bu deux tasses de café ce matin.",
+                    answer: "drunk", options: ["drink", "drank", "drunk"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "Après l'auxiliaire 'has', on utilise la 3e colonne 'drunk'.",
+                    example: "<i>She drank orange juice for breakfast.</i>",
+                    deepDive: "Même règle vocalique : Drink (I) -> Drank (A) -> Drunk (U)."
+                }
+            ]
+        },
+        { 
+            fr: "Manger", bv: "Eat", preterit: "ate", pp: "eaten", 
+            variants: [
+                {
+                    sentence: "Somebody has _____ my sandwich!", sentenceFr: "Quelqu'un a mangé mon sandwich !",
+                    answer: "eaten", options: ["eat", "ate", "eaten"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "L'auxiliaire 'has' impose le participe passé 'eaten'.",
+                    example: "<i>We ate pizza last night.</i>",
+                    deepDive: "Le participe passé 'eaten' prend une terminaison en -en."
+                }
+            ]
+        },
+        { 
+            fr: "Trouver", bv: "Find", preterit: "found", pp: "found", 
+            variants: [
+                {
+                    sentence: "She _____ her lost keys under the sofa.", sentenceFr: "Elle a trouvé ses clés perdues sous le canapé.",
+                    answer: "found", options: ["find", "found", "finding"],
+                    rule: "<b>Prétérit simple</b>.",
+                    reason: "Action de découverte réalisée et terminée dans le passé.",
+                    example: "<i>We found a great restaurant downtown.</i>",
+                    deepDive: "Find / Found / Found : prétérit et participe passé strictement identiques."
+                }
+            ]
+        },
+        { 
+            fr: "Donner", bv: "Give", preterit: "gave", pp: "given", 
+            variants: [
+                {
+                    sentence: "The book was _____ to me by a friend.", sentenceFr: "Le livre m'a été donné par un ami.",
+                    answer: "given", options: ["give", "gave", "given"],
+                    rule: "<b>Voix passive (WAS + Participe Passé)</b>.",
+                    reason: "Le sujet subit l'action. L'auxiliaire passif exige le participe passé 'given'.",
+                    example: "<i>She gave me a nice present.</i>",
+                    deepDive: "Voix passive : ne jamais mettre le prétérit 'gave' après un auxiliaire be."
+                }
+            ]
+        },
+        { 
+            fr: "Aller", bv: "Go", preterit: "went", pp: "gone", 
+            variants: [
+                {
+                    sentence: "He has _____ to the supermarket for groceries.", sentenceFr: "Il est allé au supermarché pour faire des courses.",
+                    answer: "gone", options: ["go", "went", "gone"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "Action accomplie avec conséquence présente. On utilise le participe passé 'gone'.",
+                    example: "<i>They went to Spain for their holidays last year.</i>",
+                    deepDive: "'Go' change totalement de radical au prétérit ('went')."
+                }
+            ]
+        },
+        { 
+            fr: "Entendre", bv: "Hear", preterit: "heard", pp: "heard", 
+            variants: [
+                {
+                    sentence: "I _____ a strange noise outside.", sentenceFr: "J'ai entendu un bruit étrange dehors.",
+                    answer: "heard", options: ["hear", "heard", "hearing"],
+                    rule: "<b>Prétérit simple</b>.",
+                    reason: "Perception passée et révolue. Le prétérit est 'heard'.",
+                    example: "<i>She heard the good news this morning.</i>",
+                    deepDive: "Attention à l'orthographe de 'heard' qui intègre un 'a'."
+                }
+            ]
+        },
+        { 
+            fr: "Savoir / Connaître", bv: "Know", preterit: "knew", pp: "known", 
+            variants: [
+                {
+                    sentence: "We have _____ each other for ten years.", sentenceFr: "Nous nous connaissons depuis dix ans.",
+                    answer: "known", options: ["know", "knew", "known"],
+                    rule: "<b>Present Perfect (HAVE + Participe Passé)</b>.",
+                    reason: "État persistant depuis le passé lié au présent.",
+                    example: "<i>He knew the answer right away.</i>",
+                    deepDive: "Prononciation du prétérit 'knew' identique à 'new'."
+                }
+            ]
+        },
+        { 
+            fr: "Lire", bv: "Read", preterit: "read", pp: "read", 
+            variants: [
+                {
+                    sentence: "She _____ an interesting book last week.", sentenceFr: "Elle a lu un livre intéressant la semaine dernière.",
+                    answer: "read", options: ["read", "red", "reading"],
+                    rule: "<b>Prétérit simple</b>.",
+                    reason: "Action passée de lecture. L'orthographe reste 'read' à tous les temps.",
+                    example: "<i>He read the whole report in one hour.</i>",
+                    deepDive: "S'écrit 'read' partout, mais se prononce [réd] au prétérit et au participe passé."
+                }
+            ]
+        },
+        { 
+            fr: "Voir", bv: "See", preterit: "saw", pp: "seen", 
+            variants: [
+                {
+                    sentence: "Have you _____ my keys anywhere?", sentenceFr: "As-tu vu mes clés quelque part ?",
+                    answer: "seen", options: ["see", "saw", "seen"],
+                    rule: "<b>Present Perfect interrogatif (HAVE + Participe Passé)</b>.",
+                    reason: "L'auxiliaire 'have' impose l'emploi du participe passé 'seen'.",
+                    example: "<i>I saw a great movie last night.</i>",
+                    deepDive: "See / Saw / Seen : construction classique en -en."
+                }
+            ]
+        },
+        { 
+            fr: "Parler", bv: "Speak", preterit: "spoke", pp: "spoken", 
+            variants: [
+                {
+                    sentence: "She has already _____ to the manager.", sentenceFr: "Elle a déjà parlé au gérant.",
+                    answer: "spoken", options: ["speak", "spoke", "spoken"],
+                    rule: "<b>Present Perfect (HAS + Participe Passé)</b>.",
+                    reason: "L'auxiliaire 'has' exige le participe passé en -en ('spoken').",
+                    example: "<i>He spoke about his experience.</i>",
+                    deepDive: "Ne pas confondre le prétérit 'spoke' avec le participe passé 'spoken'."
+                }
+            ]
+        },
+        { 
+            fr: "Écrire", bv: "Write", preterit: "wrote", pp: "written", 
+            variants: [
+                {
+                    sentence: "A formal letter was _____ by the director.", sentenceFr: "Une lettre officielle a été écrite par le directeur.",
+                    answer: "written", options: ["write", "wrote", "written"],
+                    rule: "<b>Voix passive (WAS + Participe Passé)</b>.",
+                    reason: "Le sujet subit l'action. Après 'was', on met le participe passé 'written'.",
+                    example: "<i>She wrote a nice postcard to her parents.</i>",
+                    deepDive: "Le participe passé 'written' double le 't' et prend un -en final."
+                }
+            ]
+        }
+    ];
+
+    // ===================== ÉTAT GLOBAL =====================
+    const STORAGE_KEY = 'verbApp_v2';
+    let questionQueue = [];
+    let currentItem = null;
+    let currentVariantRef = null;
+    let score = 0;
+    let phase = 'input';
+    let isFrench = false;
+    let mode = 'normal';
+    let totalAtStart = 0;
+    let currentFilter = 'all';
+
+    let verbStats = {};
+
+    // ===================== PERSISTANCE =====================
+    function saveState() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                score,
+                verbStats,
+                mode
+            }));
+        } catch (e) { /* quota */ }
+    }
+
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            score = data.score || 0;
+            verbStats = data.verbStats || {};
+            mode = data.mode || 'normal';
+        } catch (e) { /* corrupt */ }
+    }
+
+    function getVerbStat(bv) {
+        if (!verbStats[bv]) {
+            verbStats[bv] = { correct: 0, wrong: 0, mastered: false };
+        }
+        return verbStats[bv];
+    }
+
+    function updateVerbStat(bv, isCorrect) {
+        const s = getVerbStat(bv);
+        if (isCorrect) {
+            s.correct++;
+            if (s.correct >= 2 && s.wrong === 0) s.mastered = true;
+            if (s.correct >= 3) s.mastered = true;
+        } else {
+            s.wrong++;
+            s.mastered = false;
+        }
+        saveState();
+    }
+
+    function resetProgress() {
+        if (!confirm("Effacer toute la progression (score + stats) ?")) return;
+        verbStats = {};
+        score = 0;
+        saveState();
+        document.getElementById('score').textContent = score;
+        updateReviewButton();
+        renderVerbTable();
+    }
+
+    // ===================== FILE D'ATTENTE =====================
+    function initQueue() {
+        questionQueue = [];
+        verbsDatabase.forEach((verbObj) => {
+            verbObj.variants.forEach((variantObj) => {
+                questionQueue.push({
+                    fr: verbObj.fr,
+                    bv: verbObj.bv,
+                    preterit: verbObj.preterit,
+                    pp: verbObj.pp,
+                    ...variantObj
+                });
+            });
+        });
+        shuffle(questionQueue);
+        totalAtStart = questionQueue.length;
+    }
+
+    function initReviewQueue() {
+        questionQueue = [];
+        verbsDatabase.forEach((verbObj) => {
+            const stat = getVerbStat(verbObj.bv);
+            if (stat.wrong > 0 && !stat.mastered) {
+                verbObj.variants.forEach((variantObj) => {
+                    questionQueue.push({
+                        fr: verbObj.fr,
+                        bv: verbObj.bv,
+                        preterit: verbObj.preterit,
+                        pp: verbObj.pp,
+                        ...variantObj
+                    });
+                });
+            }
+        });
+        shuffle(questionQueue);
+        totalAtStart = questionQueue.length;
+    }
+
+    function shuffle(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+    }
+
+    function updateReviewButton() {
+        const weakCount = verbsDatabase.filter(v => {
+            const s = getVerbStat(v.bv);
+            return s.wrong > 0 && !s.mastered;
+        }).length;
+        const btn = document.getElementById('review-btn');
+        btn.textContent = weakCount > 0 ? `🎯 Mes erreurs (${weakCount})` : '🎯 Mes erreurs';
+        btn.disabled = weakCount === 0;
+    }
+
+    function startReviewMode() {
+        mode = 'review';
+        document.getElementById('mode-label').textContent = 'Mode : révision';
+        initReviewQueue();
+        if (questionQueue.length === 0) {
+            alert("Aucune erreur à réviser. Bravo ! 🎉");
+            mode = 'normal';
+            document.getElementById('mode-label').textContent = 'Mode : normal';
+            return;
+        }
+        saveState();
+        loadQuestion();
+    }
+
+    function startNormalMode() {
+        mode = 'normal';
+        document.getElementById('mode-label').textContent = 'Mode : normal';
+        initQueue();
+        saveState();
+        loadQuestion();
+    }
+
+    // ===================== UI =====================
+    function updateProgress() {
+        const remaining = questionQueue.length + (currentItem ? 1 : 0);
+        const bar = document.getElementById('progress-bar');
+        const done = totalAtStart > 0 ? (totalAtStart - remaining) / totalAtStart : 0;
+        bar.style.width = Math.max(0, Math.min(100, done * 100)) + '%';
+        document.getElementById('remaining-label').textContent = remaining > 0 ? remaining : '✓';
+    }
+
+    function loadQuestion() {
+        if (!currentItem) {
+            // première fois
+        }
+        if (questionQueue.length === 0) {
+            if (mode === 'review') {
+                document.getElementById('feedback').innerHTML = "🎉 Révision terminée ! Retour au mode normal.";
+                document.getElementById('feedback').className = "feedback correct";
+                setTimeout(() => {
+                    mode = 'normal';
+                    document.getElementById('mode-label').textContent = 'Mode : normal';
+                    initQueue();
+                    loadQuestion();
+                }, 1500);
+                return;
+            }
+            initQueue();
+        }
+
+        currentItem = questionQueue.pop();
+        updateProgress();
+
+        phase = 'input';
+        isFrench = false;
+
+        document.getElementById('french-word').textContent = currentItem.fr;
+        document.getElementById('base-verb').textContent = "Base verbale : " + currentItem.bv;
+        document.getElementById('preterit').value = '';
+        document.getElementById('past-participle').value = '';
+        document.getElementById('preterit').disabled = false;
+        document.getElementById('past-participle').disabled = false;
+        document.getElementById('preterit').classList.remove('input-correct', 'input-wrong');
+        document.getElementById('past-participle').classList.remove('input-correct', 'input-wrong');
+
+        document.getElementById('feedback').className = 'feedback';
+        document.getElementById('feedback').textContent = '';
+        document.getElementById('submit-btn').style.display = 'block';
+
+        document.getElementById('bubble-section').style.display = 'none';
+        document.getElementById('explanation-box').className = 'explanation-box';
+        document.getElementById('next-card-btn').style.display = 'none';
+        document.getElementById('translate-btn').textContent = "🇫🇷 Traduire";
+        document.getElementById('translate-btn').style.background = "#e2e8f0";
+        document.getElementById('translate-btn').style.color = "#475569";
+        document.getElementById('preterit').focus();
+
+        const card = document.querySelector('.card');
+        card.style.animation = 'none';
+        void card.offsetWidth;
+        card.style.animation = 'fadeIn 0.3s ease';
+    }
+
+    function toggleTranslation() {
+        isFrench = !isFrench;
+        const sentenceText = document.getElementById('sentence-text');
+        const translateBtn = document.getElementById('translate-btn');
+
+        if (isFrench) {
+            sentenceText.textContent = currentItem.sentenceFr;
+            translateBtn.textContent = "🇬🇧 Anglais";
+            translateBtn.style.background = "#bfdbfe";
+            translateBtn.style.color = "#1e40af";
+        } else {
+            sentenceText.textContent = currentItem.sentence;
+            translateBtn.textContent = "🇫🇷 Traduire";
+            translateBtn.style.background = "#e2e8f0";
+            translateBtn.style.color = "#475569";
+        }
+    }
+
+    function handleDontKnow() {
+        const preteritField = document.getElementById('preterit');
+        const ppField = document.getElementById('past-participle');
+        
+        preteritField.value = currentItem.preterit.split(' / ')[0];
+        ppField.value = currentItem.pp.split(' / ')[0];
+        
+        preteritField.disabled = true;
+        ppField.disabled = true;
+        preteritField.classList.add('input-wrong');
+        ppField.classList.add('input-wrong');
+        document.getElementById('submit-btn').style.display = 'none';
+
+        playSound(false);
+        triggerVibration(false);
+
+        updateVerbStat(currentItem.bv, false);
+
+        const feedbackEl = document.getElementById('feedback');
+        feedbackEl.innerHTML = "💡 Voici les réponses. À vous de jouer pour la phrase ci-dessous !";
+        feedbackEl.className = "feedback wrong";
+
+        setupBubbleExercise();
+        phase = 'bubble';
+        updateReviewButton();
+    }
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        if (phase !== 'input') return;
+
+        const userPreterit = document.getElementById('preterit').value.trim().toLowerCase();
+        const userPp = document.getElementById('past-participle').value.trim().toLowerCase();
+
+        const validPreterits = currentItem.preterit.toLowerCase().split(' / ');
+        const validPps = currentItem.pp.toLowerCase().split(' / ');
+
+        const isPreteritCorrect = validPreterits.includes(userPreterit);
+        const isPpCorrect = validPps.includes(userPp);
+
+        const preteritInput = document.getElementById('preterit');
+        const ppInput = document.getElementById('past-participle');
+        preteritInput.classList.toggle('input-correct', isPreteritCorrect);
+        preteritInput.classList.toggle('input-wrong', !isPreteritCorrect);
+        ppInput.classList.toggle('input-correct', isPpCorrect);
+        ppInput.classList.toggle('input-wrong', !isPpCorrect);
+
+        const feedbackEl = document.getElementById('feedback');
+        const bothCorrect = isPreteritCorrect && isPpCorrect;
+        const anyCorrect = isPreteritCorrect || isPpCorrect;
+
+        let points = 0;
+        if (isPreteritCorrect) points += 5;
+        if (isPpCorrect) points += 5;
+        score += points;
+
+        updateVerbStat(currentItem.bv, bothCorrect);
+
+        if (bothCorrect) {
+            playSound(true);
+            triggerVibration(true);
+            feedbackEl.textContent = "Exact pour les verbes ! Analysez maintenant le contexte de la phrase :";
+            feedbackEl.className = "feedback correct";
+        } else if (anyCorrect) {
+            playSound(false);
+            triggerVibration(false);
+            feedbackEl.innerHTML = "Partiellement correct (+" + points + " pts).<br>Formes attendues : <strong>" + currentItem.preterit + "</strong> / <strong>" + currentItem.pp + "</strong>";
+            feedbackEl.className = "feedback wrong";
+        } else {
+            playSound(false);
+            triggerVibration(false);
+            feedbackEl.innerHTML = "Attention ❌<br>Formes attendues : <strong>" + currentItem.preterit + "</strong> / <strong>" + currentItem.pp + "</strong>";
+            feedbackEl.className = "feedback wrong";
+        }
+
+        document.getElementById('score').textContent = score;
+        if (points > 0) window.showGamingReward && window.showGamingReward(points, bothCorrect);
+        saveState();
+        updateReviewButton();
+
+        preteritInput.disabled = true;
+        ppInput.disabled = true;
+        document.getElementById('submit-btn').style.display = 'none';
+
+        setupBubbleExercise();
+        phase = 'bubble';
+    }
+
+    function setupBubbleExercise() {
+        const bubbleSection = document.getElementById('bubble-section');
+        const sentenceText = document.getElementById('sentence-text');
+        const bubblesContainer = document.getElementById('bubbles-container');
+
+        isFrench = false;
+        document.getElementById('translate-btn').textContent = "🇫🇷 Traduire";
+        document.getElementById('translate-btn').style.background = "#e2e8f0";
+        document.getElementById('translate-btn').style.color = "#475569";
+
+        sentenceText.textContent = currentItem.sentence;
+        bubblesContainer.innerHTML = '';
+
+        let shuffledOptions = [...currentItem.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach((option, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'bubble-btn';
+            btn.textContent = option;
+            btn.dataset.option = option;
+            btn.onclick = function() { checkBubble(option); };
+            bubblesContainer.appendChild(btn);
+        });
+
+        bubbleSection.style.display = 'block';
+    }
+
+    function checkBubble(selectedOption) {
+        const buttons = document.querySelectorAll('.bubble-btn');
+        const isCorrect = selectedOption.toLowerCase() === currentItem.answer.toLowerCase();
+
+        playSound(isCorrect);
+        triggerVibration(isCorrect);
+
+        buttons.forEach(btn => {
+            btn.disabled = true;
+            if (btn.textContent.toLowerCase() === currentItem.answer.toLowerCase()) {
+                btn.classList.add('correct-bubble');
+            } else if (btn.textContent.toLowerCase() === selectedOption.toLowerCase()) {
+                btn.classList.add('wrong-bubble');
+            }
+        });
+
+        if (isCorrect) {
+            score += 5;
+            updateVerbStat(currentItem.bv, true);
+        } else {
+            updateVerbStat(currentItem.bv, false);
+        }
+        document.getElementById('score').textContent = score;
+        if (isCorrect) window.showGamingReward && window.showGamingReward(5, true);
+        saveState();
+        updateReviewButton();
+
+        showDetailedExplanation(isCorrect);
+    }
+
+    function showDetailedExplanation(isCorrect) {
+        const explanationBox = document.getElementById('explanation-box');
+        const nextBtn = document.getElementById('next-card-btn');
+
+        const htmlExplanation = 
+            '<span class="explanation-title">' + (isCorrect ? '✅ Analyse détaillée : Correct !' : '📖 Analyse détaillée & Correction') + '</span>' +
+            '<div><strong>1. Règle grammaticale :</strong> ' + currentItem.rule + '</div>' +
+            '<div class="explanation-section"><strong>2. Explication logique :</strong><br>' + currentItem.reason + '</div>' +
+            '<div class="explanation-section"><strong>3. Exemple similaire :</strong><br>' + currentItem.example + '</div>' +
+            '<div class="explanation-section" style="color: #1e3a8a; background: #eff6ff; padding: 10px; border-radius: 6px; border-left: 4px solid #2563eb; margin-top: 10px;"><strong>4. Décryptage approfondi :</strong><br>' + currentItem.deepDive + '</div>';
+
+        explanationBox.innerHTML = htmlExplanation;
+        explanationBox.className = 'explanation-box ' + (isCorrect ? 'correct' : 'wrong');
+
+        nextBtn.style.display = 'block';
+        nextBtn.focus();
+    }
+
+    // ===================== MODAL =====================
+    function openModal() {
+        renderVerbTable();
+        document.getElementById('verb-modal').style.display = 'flex';
+        document.querySelector('.close-btn').focus();
+    }
+
+    function closeModal() {
+        document.getElementById('verb-modal').style.display = 'none';
+    }
+
+    function setFilter(filter) {
+        currentFilter = filter;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.filter === filter);
+        });
+        renderVerbTable();
+    }
+
+    function renderVerbTable() {
+        const tbody = document.getElementById('verb-table-body');
+        tbody.innerHTML = '';
+
+        verbsDatabase.forEach(v => {
+            const s = getVerbStat(v.bv);
+            let filterMatch = true;
+            if (currentFilter === 'weak') filterMatch = s.wrong > 0 && !s.mastered;
+            else if (currentFilter === 'mastered') filterMatch = s.mastered;
+            else if (currentFilter === 'new') filterMatch = s.correct === 0 && s.wrong === 0;
+
+            if (!filterMatch) return;
+
+            let masteryClass = 'mastery-new';
+            let masteryLabel = 'Nouveau';
+            if (s.mastered) { masteryClass = 'mastery-mastered'; masteryLabel = 'Maîtrisé'; }
+            else if (s.wrong > 0) { masteryClass = 'mastery-weak'; masteryLabel = 'À revoir'; }
+            else if (s.correct > 0) { masteryClass = 'mastery-learning'; masteryLabel = 'En cours'; }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td><span class="verb-mastery ' + masteryClass + '" title="' + masteryLabel + '"></span>' + masteryLabel + '</td>' +
+                '<td>' + v.fr + '</td>' +
+                '<td><strong>' + v.bv + '</strong></td>' +
+                '<td>' + v.preterit + ' / ' + v.pp + '</td>';
+            tbody.appendChild(tr);
+        });
+
+        if (tbody.children.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px;">Aucun verbe dans cette catégorie.</td></tr>';
+        }
+    }
+
+    // ===================== CLAVIER =====================
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+            return;
+        }
+
+        if (phase === 'bubble' && ['1', '2', '3'].includes(e.key)) {
+            const buttons = document.querySelectorAll('.bubble-btn');
+            const idx = parseInt(e.key) - 1;
+            if (buttons[idx] && !buttons[idx].disabled) {
+                buttons[idx].click();
+            }
+        }
+
+        if (e.key === 'Enter') {
+            const nextBtn = document.getElementById('next-card-btn');
+            if (nextBtn.style.display === 'block' && document.activeElement !== document.getElementById('submit-btn')) {
+                // évite le double submit
+            }
+        }
+    });
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('verb-modal');
+        if (event.target === modal) closeModal();
+    };
+
+    // ===================== INIT =====================
+    loadState();
+    document.getElementById('score').textContent = score;
+    updateReviewButton();
+    attachSanitizers();
+
+    if (mode === 'review') {
+        startReviewMode();
+    } else {
+        initQueue();
+        loadQuestion();
+    }
+
+
+    // ===================== EFFETS VISUELS GAMING =====================
+    (function initGamingEffects() {
+        const layer = document.createElement('div');
+        layer.className = 'particle-layer';
+        layer.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(layer);
+
+        window.showGamingReward = function(points, celebrate) {
+            const label = document.createElement('div');
+            label.className = 'xp-float';
+            label.textContent = '+' + points + ' XP';
+            document.body.appendChild(label);
+            setTimeout(() => label.remove(), 1200);
+
+            if (!celebrate) return;
+            const palette = ['#a78bfa', '#22d3ee', '#f0abfc', '#34d399', '#fbbf24'];
+            const count = 34;
+            for (let i = 0; i < count; i++) {
+                const p = document.createElement('i');
+                p.className = 'game-particle';
+                const angle = (Math.PI * 2 * i) / count;
+                const distance = 65 + Math.random() * 105;
+                p.style.setProperty('--x', '50%');
+                p.style.setProperty('--y', '44%');
+                p.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+                p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+                p.style.setProperty('--size', (5 + Math.random() * 7) + 'px');
+                p.style.setProperty('--radius', Math.random() > .45 ? '50%' : '2px');
+                p.style.setProperty('--color', palette[Math.floor(Math.random() * palette.length)]);
+                p.style.setProperty('--duration', (850 + Math.random() * 750) + 'ms');
+                layer.appendChild(p);
+                setTimeout(() => p.remove(), 1700);
+            }
+            const card = document.querySelector('.card');
+            if (card) {
+                card.classList.remove('correct-celebrate');
+                void card.offsetWidth;
+                card.classList.add('correct-celebrate');
+                setTimeout(() => card.classList.remove('correct-celebrate'), 650);
+            }
+        };
+    })();
+
+    // Tick au survol du 🔊 (après première interaction)
+    const speakBtnEl = document.querySelector('.btn-speak');
+    if (speakBtnEl) {
+        speakBtnEl.addEventListener('mouseenter', () => {
+            if (userHasInteracted) playTick();
+        });
+    }
+
+</script>
+
+</body>
+</html>
