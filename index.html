@@ -115,6 +115,43 @@
             cursor: not-allowed;
         }
 
+        /* ===== Menu de sélection de pool (2 boutons) ===== */
+        .pool-menu {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .pool-btn {
+            flex: 1;
+            min-width: 120px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            padding: 8px 10px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .pool-btn:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .pool-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+        }
+
         .stats {
             font-size: 0.9rem;
             color: var(--muted);
@@ -504,6 +541,14 @@
         .mastery-mastered { background: var(--correct); }
         .mastery-weak { background: var(--wrong); }
 
+        .tier-badge {
+            display: inline-block;
+            font-size: 0.7rem;
+            margin-left: 6px;
+            opacity: 0.8;
+        }
+
+        /* ===== Filtres du modal ===== */
         .filter-row {
             display: flex;
             gap: 6px;
@@ -523,6 +568,33 @@
         }
 
         .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* ===== NOUVEAU : filtre par tier dans le modal ===== */
+        .tier-filter-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed var(--border);
+        }
+
+        .tier-filter-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--muted);
+        }
+
+        .tier-filter-btn.active {
             background: var(--primary);
             color: white;
             border-color: var(--primary);
@@ -604,7 +676,7 @@ body::after { background: #06b6d4; bottom: -180px; right: -120px; animation-dela
     text-shadow: 0 0 22px rgba(167,139,250,.38);
     letter-spacing: -.5px;
 }
-.btn-list, .filter-btn, .reset-btn, .btn-translate {
+.btn-list, .filter-btn, .tier-filter-btn, .reset-btn, .btn-translate, .pool-btn {
     border-radius: 12px;
     transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
 }
@@ -617,6 +689,25 @@ body::after { background: #06b6d4; bottom: -180px; right: -120px; animation-dela
     transform: translateY(-2px);
     box-shadow: 0 7px 18px rgba(99,102,241,.2);
     background: rgba(99,102,241,.25);
+}
+.pool-menu {
+    border-bottom-color: rgba(148,163,214,.2);
+}
+.pool-btn {
+    background: rgba(30,41,75,.6);
+    color: #cbd5e1;
+    border: 1.5px solid rgba(148,163,214,.22);
+}
+.pool-btn:hover {
+    background: rgba(99,102,241,.18);
+    color: #e0e7ff;
+    transform: translateY(-1px);
+}
+.pool-btn.active {
+    background: linear-gradient(110deg, #7c3aed, #6366f1);
+    color: white;
+    border-color: rgba(167,139,250,.5);
+    box-shadow: 0 6px 18px rgba(124,58,237,.35);
 }
 .stats {
     color: #cbd5e1;
@@ -767,6 +858,9 @@ input[type="text"]:focus {
 .verb-table td strong { color: #c4b5fd; }
 .filter-btn { background: rgba(51,65,85,.7); color: #cbd5e1; border-color: rgba(148,163,184,.2); }
 .filter-btn.active { background: #6d28d9; color: white; }
+.tier-filter-btn { background: rgba(51,65,85,.7); color: #cbd5e1; border-color: rgba(148,163,184,.2); }
+.tier-filter-btn.active { background: #6d28d9; color: white; }
+.tier-filter-row { border-bottom-color: rgba(148,163,184,.2); }
 .reset-btn { background: rgba(244,63,94,.14); color: #fda4af; border-color: rgba(251,113,133,.25); }
 .close-btn { color: #cbd5e1; }
 .mastery-learning { background: #fbbf24; }
@@ -806,6 +900,8 @@ input[type="text"]:focus {
     .container { padding: 18px; border-radius: 19px; }
     .card .french-word { font-size: 1.45rem; }
     .btn { padding: 12px 9px; font-size: .92rem; }
+    .pool-btn { font-size: .78rem; padding: 8px 6px; min-width: 0; }
+    .tier-filter-btn, .filter-btn { font-size: .7rem; padding: 4px 8px; }
 }
 
 </style>
@@ -819,6 +915,12 @@ input[type="text"]:focus {
             <button type="button" class="btn-list" onclick="openModal()">📚 Verbes</button>
             <button type="button" class="btn-list" id="review-btn" onclick="startReviewMode()" title="Réviser mes erreurs">🎯 Mes erreurs</button>
         </div>
+    </div>
+
+    <!-- Menu pool : 2 boutons uniquement -->
+    <div class="pool-menu" role="tablist" aria-label="Sélection du pool de verbes">
+        <button type="button" class="pool-btn" id="pool-core" onclick="setPool('core')" title="Verbes les plus fréquents">⭐ Principaux</button>
+        <button type="button" class="pool-btn" id="pool-mix" onclick="setPool('mix')" title="Tous les verbes, pondérés">🔀 Mix</button>
     </div>
 
     <div class="stats">
@@ -887,6 +989,13 @@ input[type="text"]:focus {
             <h2 id="modal-title">📚 Liste de tous les verbes</h2>
             <button class="close-btn" onclick="closeModal()" aria-label="Fermer">&times;</button>
         </div>
+
+        <!-- NOUVEAU : filtre par tier (affichage uniquement) -->
+        <div class="tier-filter-row" role="tablist" aria-label="Filtrer par type de verbe">
+            <button type="button" class="tier-filter-btn" id="tier-filter-core" onclick="setTierFilter('core')" title="Verbes principaux uniquement">⭐ Principaux</button>
+            <button type="button" class="tier-filter-btn" id="tier-filter-all" onclick="setTierFilter('all')" title="Tous les verbes">📚 Tous</button>
+        </div>
+
         <div class="filter-row">
             <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Tous</button>
             <button class="filter-btn" data-filter="weak" onclick="setFilter('weak')">⚠️ À revoir</button>
@@ -1113,7 +1222,7 @@ input[type="text"]:focus {
         }
     }
 
-    // ===================== SPEECH SYNTHESIS (voix anglaise forcée) =====================
+    // ===================== SPEECH SYNTHESIS =====================
     let cachedEnglishVoice = null;
     let voicesReady = false;
 
@@ -1167,7 +1276,7 @@ input[type="text"]:focus {
         setTimeout(() => speak(currentItem.pp), 1400);
     }
 
-    // ===================== NETTOYAGE DES INPUTS (anti-accents) =====================
+    // ===================== NETTOYAGE DES INPUTS =====================
     function sanitizeInput(event) {
         const input = event.target;
         const sanitized = input.value
@@ -1193,1161 +1302,525 @@ input[type="text"]:focus {
         });
     }
 
-    // ===================== BASE DE DONNÉES ENRICHIE (35 verbes, 2-3 variantes) =====================
+    // ===================== BASE DE DONNÉES =====================
+    // tier: "core" = verbe principal, "extra" = autre
     const verbsDatabase = [
-        { 
-            fr: "Prendre", bv: "Take", preterit: "took", pp: "taken", 
+        // ===== 20 VERBES PRINCIPAUX (core) =====
+        { tier: "core", fr: "Prendre", bv: "Take", preterit: "took", pp: "taken", 
             variants: [
-                {
-                    id: "take-active",
-                    sentence: "She _____ her umbrella before leaving.", sentenceFr: "Elle a pris son parapluie avant de partir.",
-                    answer: "took", options: ["take", "took", "taken"],
-                    rule: "<b>Prétérit simple</b> (action passée, datée, révolue).",
-                    reason: "Le sujet réalise l'action directement, sans auxiliaire. On écarte 'take' (base verbale / présent) et 'taken' (participe passé qui exigerait un auxiliaire).",
-                    example: "<i>He took the train to London yesterday.</i>",
-                    deepDive: "Le prétérit simple (2e colonne) s'emploie pour une action terminée à un moment précis du passé, sans lien direct avec le présent."
-                },
-                {
-                    id: "take-passive",
-                    sentence: "Many pictures were _____ during the trip.", sentenceFr: "Beaucoup de photos ont été prises pendant le voyage.",
-                    answer: "taken", options: ["take", "took", "taken"],
-                    rule: "<b>Voix passive</b> (BE + Participe Passé).",
-                    reason: "Le sujet 'pictures' subit l'action. La structure passive se construit avec l'auxiliaire 'be' (ici 'were') suivi du participe passé.",
-                    example: "<i>The decision was taken last week.</i>",
-                    deepDive: "Dans une phrase passive, c'est le participe passé (3e colonne) qui porte le sens verbal, jamais le prétérit."
-                },
-                {
-                    id: "take-perfect",
-                    sentence: "He has _____ the same bus for ten years.", sentenceFr: "Il a pris le même bus pendant dix ans.",
-                    answer: "taken", options: ["take", "took", "taken"],
-                    rule: "<b>Present Perfect</b> (HAS/HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'has' impose le participe passé 'taken'.",
-                    example: "<i>She has taken part in the competition.</i>",
-                    deepDive: "Le Present Perfect relie une action passée à un bilan présent : on ne peut pas utiliser le prétérit 'took' après 'has'."
-                }
+                { id: "take-active", sentence: "She _____ her umbrella before leaving.", sentenceFr: "Elle a pris son parapluie avant de partir.", answer: "took", options: ["take", "took", "taken"],
+                  rule: "<b>Prétérit simple</b> (action passée, datée, révolue).",
+                  reason: "Le sujet réalise l'action directement, sans auxiliaire. On écarte 'take' (base verbale / présent) et 'taken' (participe passé qui exigerait un auxiliaire).",
+                  example: "<i>He took the train to London yesterday.</i>",
+                  deepDive: "Le prétérit simple (2e colonne) s'emploie pour une action terminée à un moment précis du passé, sans lien direct avec le présent." },
+                { id: "take-passive", sentence: "Many pictures were _____ during the trip.", sentenceFr: "Beaucoup de photos ont été prises pendant le voyage.", answer: "taken", options: ["take", "took", "taken"],
+                  rule: "<b>Voix passive</b> (BE + Participe Passé).",
+                  reason: "Le sujet 'pictures' subit l'action. La structure passive se construit avec l'auxiliaire 'be' (ici 'were') suivi du participe passé.",
+                  example: "<i>The decision was taken last week.</i>",
+                  deepDive: "Dans une phrase passive, c'est le participe passé (3e colonne) qui porte le sens verbal, jamais le prétérit." },
+                { id: "take-perfect", sentence: "He has _____ the same bus for ten years.", sentenceFr: "Il a pris le même bus pendant dix ans.", answer: "taken", options: ["take", "took", "taken"],
+                  rule: "<b>Present Perfect</b> (HAS/HAVE + Participe Passé).",
+                  reason: "L'auxiliaire 'has' impose le participe passé 'taken'.",
+                  example: "<i>She has taken part in the competition.</i>",
+                  deepDive: "Le Present Perfect relie une action passée à un bilan présent : on ne peut pas utiliser le prétérit 'took' après 'has'." }
             ]
         },
-        { 
-            fr: "Saigner", bv: "Bleed", preterit: "bled", pp: "bled", 
+        { tier: "core", fr: "Avoir", bv: "Have", preterit: "had", pp: "had", 
             variants: [
-                {
-                    id: "bleed-infinitive",
-                    sentence: "The small cut started to _____ slightly.", sentenceFr: "La petite coupure a commencé à saigner légèrement.",
-                    answer: "bleed", options: ["bleed", "bled", "bleeding"],
-                    rule: "<b>Infinitif</b> (particule 'to' + base verbale).",
-                    reason: "Après la particule infinitive 'to', le verbe reste à la base verbale (infinitif pur).",
-                    example: "<i>She began to bleed after the fall.</i>",
-                    deepDive: "À ne pas confondre avec la préposition 'to' suivie d'un gérondif : ici, 'to' introduit un infinitif, donc base verbale."
-                },
-                {
-                    id: "bleed-perfect",
-                    sentence: "He has _____ on his new shirt.", sentenceFr: "Il a saigné sur sa nouvelle chemise.",
-                    answer: "bled", options: ["bleed", "bled", "blood"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' est suivi du participe passé 'bled'.",
-                    example: "<i>The fabric has bled during washing.</i>",
-                    deepDive: "Ne pas confondre 'blood' (nom = le sang) avec le verbe conjugué 'bled' (prétérit et participe passé)."
-                }
+                { id: "have-past", sentence: "She _____ a great time at the party last night.", sentenceFr: "Elle s'est bien amusée à la fête hier soir.", answer: "had", options: ["have", "had", "having"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last night') : on utilise la 2e colonne 'had'.",
+                  example: "<i>We had dinner at a nice restaurant.</i>", deepDive: "Have / Had / Had : prétérit et participe passé identiques." },
+                { id: "have-perfect", sentence: "I have _____ this car for five years.", sentenceFr: "J'ai cette voiture depuis cinq ans.", answer: "had", options: ["have", "had", "having"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'had'.",
+                  example: "<i>She has had that job since 2020.</i>", deepDive: "Avec 'for' ou 'since', un état qui dure se met au Present Perfect." }
             ]
         },
-        { 
-            fr: "Chuter / Tomber", bv: "Fall", preterit: "fell", pp: "fallen", 
+        { tier: "core", fr: "Faire", bv: "Do", preterit: "did", pp: "done", 
             variants: [
-                {
-                    id: "fall-perfect",
-                    sentence: "Sales have _____ significantly this month.", sentenceFr: "Les ventes ont chuté de manière significative ce mois-ci.",
-                    answer: "fallen", options: ["fall", "fell", "fallen"],
-                    rule: "<b>Present Perfect</b> (HAS/HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' (accordé avec 'sales', pluriel) impose le participe passé 'fallen'.",
-                    example: "<i>Temperatures have fallen overnight.</i>",
-                    deepDive: "Action passée avec répercussion directe sur la situation présente : c'est le domaine du Present Perfect."
-                },
-                {
-                    id: "fall-past",
-                    sentence: "He _____ off his bicycle yesterday.", sentenceFr: "Il est tombé de son vélo hier.",
-                    answer: "fell", options: ["fall", "fell", "fallen"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Événement ponctuel et daté ('yesterday') dans le passé. On utilise la 2e colonne 'fell'.",
-                    example: "<i>She fell asleep during the movie.</i>",
-                    deepDive: "Un marqueur temporel passé explicite ('yesterday', 'last week') impose le prétérit simple, pas le Present Perfect."
-                },
-                {
-                    id: "fall-adjective",
-                    sentence: "The _____ leaves covered the ground.", sentenceFr: "Les feuilles tombées couvraient le sol.",
-                    answer: "fallen", options: ["fall", "fell", "fallen"],
-                    rule: "<b>Participe passé en position d'adjectif</b>.",
-                    reason: "Le participe passé 'fallen' qualifie directement le nom 'leaves' (feuilles tombées).",
-                    example: "<i>The fallen tree blocked the road.</i>",
-                    deepDive: "Le participe passé peut devenir adjectif qualificatif : il perd alors sa fonction verbale et s'accorde en position d'épithète."
-                }
+                { id: "do-perfect", sentence: "Have you _____ your homework yet?", sentenceFr: "As-tu déjà fait tes devoirs ?", answer: "done", options: ["do", "did", "done"],
+                  rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).", reason: "Dans une question au Present Perfect, l'auxiliaire 'have' exige le participe passé 'done'.",
+                  example: "<i>She has done a great job on this project.</i>", deepDive: "Piège classique : ne pas confondre le prétérit 'did' et le participe passé 'done'." },
+                { id: "do-past", sentence: "He _____ his best to help us yesterday.", sentenceFr: "Il a fait de son mieux pour nous aider hier.", answer: "did", options: ["do", "did", "done"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'did'.",
+                  example: "<i>She did the dishes after dinner.</i>", deepDive: "'Did' est aussi l'auxiliaire du prétérit : dans une phrase affirmative simple, il est le verbe principal." }
             ]
         },
-        { 
-            fr: "Casser", bv: "Break", preterit: "broke", pp: "broken", 
+        { tier: "core", fr: "Dire", bv: "Say", preterit: "said", pp: "said", 
             variants: [
-                {
-                    id: "break-adjective",
-                    sentence: "Be careful not to drop that _____ glass.", sentenceFr: "Fais attention de ne pas faire tomber ce verre cassé.",
-                    answer: "broken", options: ["break", "broke", "broken"],
-                    rule: "<b>Participe passé en position d'adjectif</b>.",
-                    reason: "Le verbe qualifie le nom 'glass' (un verre cassé) : on utilise la 3e colonne 'broken'.",
-                    example: "<i>A broken promise is hard to forget.</i>",
-                    deepDive: "Le participe passé d'un verbe irrégulier peut fonctionner comme adjectif qualificatif, toujours avec la 3e colonne."
-                },
-                {
-                    id: "break-past",
-                    sentence: "She _____ her phone screen last night.", sentenceFr: "Elle a cassé l'écran de son téléphone la nuit dernière.",
-                    answer: "broke", options: ["break", "broke", "broken"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last night') où le sujet agit directement.",
-                    example: "<i>He broke the world record.</i>",
-                    deepDive: "Le prétérit simple 'broke' (2e colonne) indique l'action de casser à un moment précis, sans auxiliaire."
-                },
-                {
-                    id: "break-perfect",
-                    sentence: "The washing machine has _____ down again.", sentenceFr: "La machine à laver est encore tombée en panne.",
-                    answer: "broken", options: ["break", "broke", "broken"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' impose le participe passé 'broken' (verbe à particule 'break down').",
-                    example: "<i>My car has broken down on the motorway.</i>",
-                    deepDive: "Avec les verbes à particule, l'auxiliaire se place avant le verbe conjugué et la particule reste à la fin."
-                }
+                { id: "say-past", sentence: "He _____ he would come tomorrow.", sentenceFr: "Il a dit qu'il viendrait demain.", answer: "said", options: ["say", "said", "saying"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'said'.",
+                  example: "<i>She said goodbye and left.</i>", deepDive: "Say / Said / Said : la prononciation de 'said' est [sɛd], pas [seɪd]." },
+                { id: "say-perfect", sentence: "She has _____ everything she knows.", sentenceFr: "Elle a dit tout ce qu'elle savait.", answer: "said", options: ["say", "said", "saying"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'said'.",
+                  example: "<i>I have said all I wanted to say.</i>", deepDive: "Say / Said / Said : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Devenir", bv: "Become", preterit: "became", pp: "become", 
+        { tier: "core", fr: "Aller", bv: "Go", preterit: "went", pp: "gone", 
             variants: [
-                {
-                    id: "become-perfect",
-                    sentence: "She has _____ an expert in coding.", sentenceFr: "Elle est devenue une experte en programmation.",
-                    answer: "become", options: ["become", "became", "becoming"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "Après 'has', on emploie le participe passé de become, qui est identique à la base verbale.",
-                    example: "<i>The weather has become much colder.</i>",
-                    deepDive: "Piège classique : 'become' a la même forme à la 1re et à la 3e colonne (become / became / become)."
-                },
-                {
-                    id: "become-past",
-                    sentence: "He _____ a doctor after ten years of study.", sentenceFr: "Il est devenu médecin après dix ans d'études.",
-                    answer: "became", options: ["become", "became", "becoming"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Transformation achevée dans le passé, sans lien nécessaire avec le présent.",
-                    example: "<i>She became famous overnight.</i>",
-                    deepDive: "Le prétérit 'became' marque un changement d'état révolu, tandis que 'has become' insiste sur le résultat présent."
-                }
+                { id: "go-perfect", sentence: "He has _____ to the supermarket for groceries.", sentenceFr: "Il est allé au supermarché pour faire des courses.", answer: "gone", options: ["go", "went", "gone"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "Action accomplie avec conséquence présente. On utilise le participe passé 'gone'.",
+                  example: "<i>They have gone to Spain for the holidays.</i>", deepDive: "'Go' change totalement de radical au prétérit ('went'). Il ne faut pas confondre 'gone' (participe) et 'been' (participe de 'be' utilisé pour 'have been to')." },
+                { id: "go-past", sentence: "They _____ to Spain for their holidays last year.", sentenceFr: "Ils sont allés en Espagne pour leurs vacances l'année dernière.", answer: "went", options: ["go", "went", "gone"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last year') : on utilise la 2e colonne 'went'.",
+                  example: "<i>We went to the beach yesterday.</i>", deepDive: "Le prétérit 'went' est irrégulier dans son radical, mais régulier dans sa terminaison." }
             ]
         },
-        { 
-            fr: "Commencer", bv: "Begin", preterit: "began", pp: "begun", 
+        { tier: "core", fr: "Obtenir / Devenir", bv: "Get", preterit: "got", pp: "got / gotten", 
             variants: [
-                {
-                    id: "begin-perfect",
-                    sentence: "The meeting has already _____.", sentenceFr: "La réunion a déjà commencé.",
-                    answer: "begun", options: ["begin", "began", "begun"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "Associé à l'auxiliaire 'has', le verbe begin prend sa forme en -un (begun).",
-                    example: "<i>The film has begun on time.</i>",
-                    deepDive: "Suite vocalique : Begin (I) → Began (A) → Begun (U)."
-                },
-                {
-                    id: "begin-past",
-                    sentence: "The concert _____ at eight o'clock sharp.", sentenceFr: "Le concert a commencé à huit heures précises.",
-                    answer: "began", options: ["begin", "began", "begun"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Événement daté et ponctuel dans le passé : on utilise la 2e colonne 'began'.",
-                    example: "<i>The story began in a small village.</i>",
-                    deepDive: "Un horaire précis dans le passé appelle le prétérit simple, pas le Present Perfect."
-                }
+                { id: "get-past", sentence: "I _____ a letter from my sister yesterday.", sentenceFr: "J'ai reçu une lettre de ma sœur hier.", answer: "got", options: ["get", "got", "gotten"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'got'.",
+                  example: "<i>We got lost in the city.</i>", deepDive: "Get / Got / Got (UK) ou Gotten (US) : les deux formes sont acceptées en anglais britannique moderne pour le participe passé." },
+                { id: "get-perfect", sentence: "She has _____ a new job in London.", sentenceFr: "Elle a obtenu un nouveau travail à Londres.", answer: "got", options: ["get", "got", "gotten"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'got' (ou 'gotten' en américain).",
+                  example: "<i>They have gotten used to the weather.</i>", deepDive: "'Gotten' est courant en anglais américain, 'got' domine en anglais britannique." }
             ]
         },
-        { 
-            fr: "Choisir", bv: "Choose", preterit: "chose", pp: "chosen", 
+        { tier: "core", fr: "Faire / Fabriquer", bv: "Make", preterit: "made", pp: "made", 
             variants: [
-                {
-                    id: "choose-perfect",
-                    sentence: "They have _____ the best hotel for the vacation.", sentenceFr: "Ils ont choisi le meilleur hôtel pour les vacances.",
-                    answer: "chosen", options: ["choose", "chose", "chosen"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "Avec l'auxiliaire 'have', on utilise le participe passé 'chosen'.",
-                    example: "<i>She has chosen a blue dress for the party.</i>",
-                    deepDive: "Le participe passé conserve le double 'o' et ajoute un -n ('chosen')."
-                },
-                {
-                    id: "choose-past",
-                    sentence: "She _____ a blue dress for the party.", sentenceFr: "Elle a choisi une robe bleue pour la fête.",
-                    answer: "chose", options: ["choose", "chose", "chosen"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue, sans auxiliaire : on utilise la 2e colonne 'chose'.",
-                    example: "<i>He chose the red car over the blue one.</i>",
-                    deepDive: "Attention à la prononciation : 'chose' (prétérit) se prononce avec un 'o' long, contrairement à 'choose'."
-                }
+                { id: "make-past", sentence: "She _____ a delicious cake for my birthday.", sentenceFr: "Elle a fait un délicieux gâteau pour mon anniversaire.", answer: "made", options: ["make", "made", "making"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'made'.",
+                  example: "<i>He made a mistake in the report.</i>", deepDive: "Make / Made / Made : prétérit et participe passé identiques." },
+                { id: "make-passive", sentence: "The decision was _____ by the board.", sentenceFr: "La décision a été prise par le conseil.", answer: "made", options: ["make", "made", "making"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet 'decision' subit l'action : structure passive avec 'made'.",
+                  example: "<i>The cake was made by my grandmother.</i>", deepDive: "Passif = BE + participe passé. Ici 'made' porte le sens du verbe 'make'." }
             ]
         },
-        { 
-            fr: "Faire", bv: "Do", preterit: "did", pp: "done", 
+        { tier: "core", fr: "Savoir / Connaître", bv: "Know", preterit: "knew", pp: "known", 
             variants: [
-                {
-                    id: "do-perfect",
-                    sentence: "Have you _____ your homework yet?", sentenceFr: "As-tu déjà fait tes devoirs ?",
-                    answer: "done", options: ["do", "did", "done"],
-                    rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).",
-                    reason: "Dans une question au Present Perfect, l'auxiliaire 'have' exige le participe passé 'done'.",
-                    example: "<i>She has done a great job on this project.</i>",
-                    deepDive: "Piège classique : ne pas confondre le prétérit 'did' et le participe passé 'done'."
-                },
-                {
-                    id: "do-past",
-                    sentence: "He _____ his best to help us yesterday.", sentenceFr: "Il a fait de son mieux pour nous aider hier.",
-                    answer: "did", options: ["do", "did", "done"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'did'.",
-                    example: "<i>She did the dishes after dinner.</i>",
-                    deepDive: "'Did' est aussi l'auxiliaire du prétérit : dans une phrase affirmative simple, il est le verbe principal."
-                }
+                { id: "know-perfect", sentence: "We have _____ each other for ten years.", sentenceFr: "Nous nous connaissons depuis dix ans.", answer: "known", options: ["know", "knew", "known"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "État persistant depuis le passé et lié au présent : Present Perfect avec 'known'.",
+                  example: "<i>She has known him since childhood.</i>", deepDive: "Avec 'for' ou 'since', un état qui dure encore se met au Present Perfect, pas au prétérit." },
+                { id: "know-past", sentence: "He _____ the answer right away.", sentenceFr: "Il a connu la réponse immédiatement.", answer: "knew", options: ["know", "knew", "known"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action ponctuelle et révolue : on utilise la 2e colonne 'knew'.",
+                  example: "<i>I knew it was a bad idea.</i>", deepDive: "La prononciation de 'knew' est identique à celle de 'new'." }
             ]
         },
-        { 
-            fr: "Boire", bv: "Drink", preterit: "drank", pp: "drunk", 
+        { tier: "core", fr: "Penser", bv: "Think", preterit: "thought", pp: "thought", 
             variants: [
-                {
-                    id: "drink-perfect",
-                    sentence: "He has _____ two cups of coffee this morning.", sentenceFr: "Il a bu deux tasses de café ce matin.",
-                    answer: "drunk", options: ["drink", "drank", "drunk"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "Après l'auxiliaire 'has', on utilise la 3e colonne 'drunk'.",
-                    example: "<i>She has drunk too much coffee today.</i>",
-                    deepDive: "Même règle vocalique que begin : Drink (I) → Drank (A) → Drunk (U)."
-                },
-                {
-                    id: "drink-past",
-                    sentence: "She _____ orange juice for breakfast.", sentenceFr: "Elle a bu du jus d'orange au petit-déjeuner.",
-                    answer: "drank", options: ["drink", "drank", "drunk"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'drank'.",
-                    example: "<i>We drank water after the run.</i>",
-                    deepDive: "'Drunk' seul est aussi un adjectif (ivre) : dans un contexte verbal, il faut toujours un auxiliaire."
-                }
+                { id: "think-past", sentence: "I _____ it was a good idea at the time.", sentenceFr: "Je pensais que c'était une bonne idée à l'époque.", answer: "thought", options: ["think", "thought", "thinking"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'thought'.",
+                  example: "<i>She thought about it all night.</i>", deepDive: "Think / Thought / Thought : le 'gh' ne se prononce pas, 'thought' se prononce [θɔːt]." },
+                { id: "think-perfect", sentence: "I have _____ about your offer carefully.", sentenceFr: "J'ai réfléchi attentivement à votre offre.", answer: "thought", options: ["think", "thought", "thinking"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'thought'.",
+                  example: "<i>We have thought about moving abroad.</i>", deepDive: "Think / Thought / Thought : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Manger", bv: "Eat", preterit: "ate", pp: "eaten", 
+        { tier: "core", fr: "Voir", bv: "See", preterit: "saw", pp: "seen", 
             variants: [
-                {
-                    id: "eat-perfect",
-                    sentence: "Somebody has _____ my sandwich!", sentenceFr: "Quelqu'un a mangé mon sandwich !",
-                    answer: "eaten", options: ["eat", "ate", "eaten"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' impose le participe passé 'eaten'.",
-                    example: "<i>She has eaten all the cookies.</i>",
-                    deepDive: "Le participe passé 'eaten' prend une terminaison en -en, typique de nombreux verbes irréguliers."
-                },
-                {
-                    id: "eat-past",
-                    sentence: "We _____ pizza last night.", sentenceFr: "Nous avons mangé de la pizza hier soir.",
-                    answer: "ate", options: ["eat", "ate", "eaten"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last night') : on utilise la 2e colonne 'ate'.",
-                    example: "<i>He ate a huge breakfast.</i>",
-                    deepDive: "Le prétérit 'ate' se prononce avec un 'e' long, comme dans 'eight'."
-                }
+                { id: "see-perfect", sentence: "Have you _____ my keys anywhere?", sentenceFr: "As-tu vu mes clés quelque part ?", answer: "seen", options: ["see", "saw", "seen"],
+                  rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' impose l'emploi du participe passé 'seen'.",
+                  example: "<i>I have never seen such a beautiful sunset.</i>", deepDive: "See / Saw / Seen : construction classique en -en pour la 3e colonne." },
+                { id: "see-past", sentence: "I _____ a great movie last night.", sentenceFr: "J'ai vu un super film hier soir.", answer: "saw", options: ["see", "saw", "seen"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last night') : on utilise la 2e colonne 'saw'.",
+                  example: "<i>We saw the Eiffel Tower during our trip.</i>", deepDive: "Le prétérit 'saw' se distingue nettement du participe 'seen'." }
             ]
         },
-        { 
-            fr: "Trouver", bv: "Find", preterit: "found", pp: "found", 
+        { tier: "core", fr: "Venir", bv: "Come", preterit: "came", pp: "come", 
             variants: [
-                {
-                    id: "find-past",
-                    sentence: "She _____ her lost keys under the sofa.", sentenceFr: "Elle a trouvé ses clés perdues sous le canapé.",
-                    answer: "found", options: ["find", "found", "finding"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action de découverte réalisée et terminée dans le passé.",
-                    example: "<i>We found a great restaurant downtown.</i>",
-                    deepDive: "Find / Found / Found : le prétérit et le participe passé sont strictement identiques."
-                },
-                {
-                    id: "find-passive",
-                    sentence: "The missing dog was _____ safe and sound.", sentenceFr: "Le chien disparu a été retrouvé sain et sauf.",
-                    answer: "found", options: ["find", "found", "finding"],
-                    rule: "<b>Voix passive</b> (BE + Participe Passé).",
-                    reason: "Le sujet 'dog' subit l'action : structure passive 'was' + participe passé 'found'.",
-                    example: "<i>The treasure was found by divers.</i>",
-                    deepDive: "Passif = BE (conjugué) + participe passé. Ici 'was' porte le temps, 'found' porte le sens."
-                }
+                { id: "come-past", sentence: "She _____ to the party late.", sentenceFr: "Elle est venue à la fête en retard.", answer: "came", options: ["come", "came", "coming"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'came'.",
+                  example: "<i>He came home after midnight.</i>", deepDive: "Come / Came / Come : la 1re et la 3e colonne sont identiques." },
+                { id: "come-perfect", sentence: "She has just _____ back from Italy.", sentenceFr: "Elle vient juste de rentrer d'Italie.", answer: "come", options: ["come", "came", "coming"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'come', identique à la base verbale.",
+                  example: "<i>They have come to help us.</i>", deepDive: "Piège : 'come' (participe) ne prend pas de -ing ni de -e final." }
             ]
         },
-        { 
-            fr: "Donner", bv: "Give", preterit: "gave", pp: "given", 
+        { tier: "core", fr: "Donner", bv: "Give", preterit: "gave", pp: "given", 
             variants: [
-                {
-                    id: "give-passive",
-                    sentence: "The book was _____ to me by a friend.", sentenceFr: "Le livre m'a été donné par un ami.",
-                    answer: "given", options: ["give", "gave", "given"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet subit l'action. L'auxiliaire passif 'was' exige le participe passé 'given'.",
-                    example: "<i>She was given a nice present.</i>",
-                    deepDive: "Voix passive : ne jamais mettre le prétérit 'gave' après un auxiliaire 'be'."
-                },
-                {
-                    id: "give-past",
-                    sentence: "She _____ me a nice present last week.", sentenceFr: "Elle m'a offert un joli cadeau la semaine dernière.",
-                    answer: "gave", options: ["give", "gave", "given"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last week') : on utilise la 2e colonne 'gave'.",
-                    example: "<i>He gave a speech at the ceremony.</i>",
-                    deepDive: "Give / Gave / Given : la 3e colonne 'given' sert au passif et au Present Perfect."
-                }
+                { id: "give-passive", sentence: "The book was _____ to me by a friend.", sentenceFr: "Le livre m'a été donné par un ami.", answer: "given", options: ["give", "gave", "given"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet subit l'action. L'auxiliaire passif 'was' exige le participe passé 'given'.",
+                  example: "<i>She was given a nice present.</i>", deepDive: "Voix passive : ne jamais mettre le prétérit 'gave' après un auxiliaire 'be'." },
+                { id: "give-past", sentence: "She _____ me a nice present last week.", sentenceFr: "Elle m'a offert un joli cadeau la semaine dernière.", answer: "gave", options: ["give", "gave", "given"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last week') : on utilise la 2e colonne 'gave'.",
+                  example: "<i>He gave a speech at the ceremony.</i>", deepDive: "Give / Gave / Given : la 3e colonne 'given' sert au passif et au Present Perfect." }
             ]
         },
-        { 
-            fr: "Aller", bv: "Go", preterit: "went", pp: "gone", 
+        { tier: "core", fr: "Trouver", bv: "Find", preterit: "found", pp: "found", 
             variants: [
-                {
-                    id: "go-perfect",
-                    sentence: "He has _____ to the supermarket for groceries.", sentenceFr: "Il est allé au supermarché pour faire des courses.",
-                    answer: "gone", options: ["go", "went", "gone"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "Action accomplie avec conséquence présente. On utilise le participe passé 'gone'.",
-                    example: "<i>They have gone to Spain for the holidays.</i>",
-                    deepDive: "'Go' change totalement de radical au prétérit ('went'). Il ne faut pas confondre 'gone' (participe) et 'been' (participe de 'be' utilisé pour 'have been to')."
-                },
-                {
-                    id: "go-past",
-                    sentence: "They _____ to Spain for their holidays last year.", sentenceFr: "Ils sont allés en Espagne pour leurs vacances l'année dernière.",
-                    answer: "went", options: ["go", "went", "gone"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last year') : on utilise la 2e colonne 'went'.",
-                    example: "<i>We went to the beach yesterday.</i>",
-                    deepDive: "Le prétérit 'went' est irrégulier dans son radical, mais régulier dans sa terminaison."
-                }
+                { id: "find-past", sentence: "She _____ her lost keys under the sofa.", sentenceFr: "Elle a trouvé ses clés perdues sous le canapé.", answer: "found", options: ["find", "found", "finding"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action de découverte réalisée et terminée dans le passé.",
+                  example: "<i>We found a great restaurant downtown.</i>", deepDive: "Find / Found / Found : le prétérit et le participe passé sont strictement identiques." },
+                { id: "find-passive", sentence: "The missing dog was _____ safe and sound.", sentenceFr: "Le chien disparu a été retrouvé sain et sauf.", answer: "found", options: ["find", "found", "finding"],
+                  rule: "<b>Voix passive</b> (BE + Participe Passé).", reason: "Le sujet 'dog' subit l'action : structure passive 'was' + participe passé 'found'.",
+                  example: "<i>The treasure was found by divers.</i>", deepDive: "Passif = BE (conjugué) + participe passé. Ici 'was' porte le temps, 'found' porte le sens." }
             ]
         },
-        { 
-            fr: "Entendre", bv: "Hear", preterit: "heard", pp: "heard", 
+        { tier: "core", fr: "Raconter / Dire", bv: "Tell", preterit: "told", pp: "told", 
             variants: [
-                {
-                    id: "hear-past",
-                    sentence: "I _____ a strange noise outside.", sentenceFr: "J'ai entendu un bruit étrange dehors.",
-                    answer: "heard", options: ["hear", "heard", "hearing"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Perception passée et révolue. Le prétérit est 'heard'.",
-                    example: "<i>She heard the good news this morning.</i>",
-                    deepDive: "Attention à l'orthographe de 'heard' qui intègre un 'a' (ne pas écrire 'hered')."
-                },
-                {
-                    id: "hear-perfect",
-                    sentence: "Have you _____ about the new project?", sentenceFr: "As-tu entendu parler du nouveau projet ?",
-                    answer: "heard", options: ["hear", "heard", "hearing"],
-                    rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'heard', identique au prétérit.",
-                    example: "<i>I have never heard such a story.</i>",
-                    deepDive: "Hear / Heard / Heard : prétérit et participe passé identiques, comme pour 'find' ou 'bleed'."
-                }
+                { id: "tell-past", sentence: "She _____ me a funny story yesterday.", sentenceFr: "Elle m'a raconté une histoire drôle hier.", answer: "told", options: ["tell", "told", "telling"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'told'.",
+                  example: "<i>He told the truth about the accident.</i>", deepDive: "Tell / Told / Told : prétérit et participe passé identiques." },
+                { id: "tell-perfect", sentence: "I have already _____ you the truth.", sentenceFr: "Je t'ai déjà dit la vérité.", answer: "told", options: ["tell", "told", "telling"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'told'.",
+                  example: "<i>She has told everyone the news.</i>", deepDive: "Tell / Told / Told : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Savoir / Connaître", bv: "Know", preterit: "knew", pp: "known", 
+        { tier: "core", fr: "Devenir", bv: "Become", preterit: "became", pp: "become", 
             variants: [
-                {
-                    id: "know-perfect",
-                    sentence: "We have _____ each other for ten years.", sentenceFr: "Nous nous connaissons depuis dix ans.",
-                    answer: "known", options: ["know", "knew", "known"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "État persistant depuis le passé et lié au présent : Present Perfect avec 'known'.",
-                    example: "<i>She has known him since childhood.</i>",
-                    deepDive: "Avec 'for' ou 'since', un état qui dure encore se met au Present Perfect, pas au prétérit."
-                },
-                {
-                    id: "know-past",
-                    sentence: "He _____ the answer right away.", sentenceFr: "Il a connu la réponse immédiatement.",
-                    answer: "knew", options: ["know", "knew", "known"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action ponctuelle et révolue : on utilise la 2e colonne 'knew'.",
-                    example: "<i>I knew it was a bad idea.</i>",
-                    deepDive: "La prononciation de 'knew' est identique à celle de 'new'."
-                }
+                { id: "become-perfect", sentence: "She has _____ an expert in coding.", sentenceFr: "Elle est devenue une experte en programmation.", answer: "become", options: ["become", "became", "becoming"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "Après 'has', on emploie le participe passé de become, qui est identique à la base verbale.",
+                  example: "<i>The weather has become much colder.</i>", deepDive: "Piège classique : 'become' a la même forme à la 1re et à la 3e colonne (become / became / become)." },
+                { id: "become-past", sentence: "He _____ a doctor after ten years of study.", sentenceFr: "Il est devenu médecin après dix ans d'études.", answer: "became", options: ["become", "became", "becoming"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Transformation achevée dans le passé, sans lien nécessaire avec le présent.",
+                  example: "<i>She became famous overnight.</i>", deepDive: "Le prétérit 'became' marque un changement d'état révolu, tandis que 'has become' insiste sur le résultat présent." }
             ]
         },
-        { 
-            fr: "Lire", bv: "Read", preterit: "read", pp: "read", 
+        { tier: "core", fr: "Partir / Quitter", bv: "Leave", preterit: "left", pp: "left", 
             variants: [
-                {
-                    id: "read-past",
-                    sentence: "She _____ an interesting book last week.", sentenceFr: "Elle a lu un livre intéressant la semaine dernière.",
-                    answer: "read", options: ["read", "reads", "reading"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée de lecture. L'orthographe reste 'read' à tous les temps, seule la prononciation change.",
-                    example: "<i>He read the whole report in one hour.</i>",
-                    deepDive: "Piège d'orthographe : 'read' s'écrit pareil partout, mais se prononce [ri:d] au présent et [rɛd] au prétérit/participe passé."
-                },
-                {
-                    id: "read-perfect",
-                    sentence: "I have already _____ this novel twice.", sentenceFr: "J'ai déjà lu ce roman deux fois.",
-                    answer: "read", options: ["read", "reads", "reading"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'read' (même orthographe, prononciation [rɛd]).",
-                    example: "<i>She has read all the Harry Potter books.</i>",
-                    deepDive: "À l'oral, bien prononcer [rɛd] après 'have' pour marquer le participe passé."
-                }
+                { id: "leave-past", sentence: "She _____ the office at six o'clock.", sentenceFr: "Elle a quitté le bureau à six heures.", answer: "left", options: ["leave", "left", "leaving"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'left'.",
+                  example: "<i>He left home at eighteen.</i>", deepDive: "Leave / Left / Left : 'left' se prononce [left]." },
+                { id: "leave-perfect", sentence: "The train has already _____.", sentenceFr: "Le train est déjà parti.", answer: "left", options: ["leave", "left", "leaving"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'left'.",
+                  example: "<i>She has left her umbrella at the restaurant.</i>", deepDive: "Leave / Left / Left : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Voir", bv: "See", preterit: "saw", pp: "seen", 
+        { tier: "core", fr: "Ressentir", bv: "Feel", preterit: "felt", pp: "felt", 
             variants: [
-                {
-                    id: "see-perfect",
-                    sentence: "Have you _____ my keys anywhere?", sentenceFr: "As-tu vu mes clés quelque part ?",
-                    answer: "seen", options: ["see", "saw", "seen"],
-                    rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' impose l'emploi du participe passé 'seen'.",
-                    example: "<i>I have never seen such a beautiful sunset.</i>",
-                    deepDive: "See / Saw / Seen : construction classique en -en pour la 3e colonne."
-                },
-                {
-                    id: "see-past",
-                    sentence: "I _____ a great movie last night.", sentenceFr: "J'ai vu un super film hier soir.",
-                    answer: "saw", options: ["see", "saw", "seen"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last night') : on utilise la 2e colonne 'saw'.",
-                    example: "<i>We saw the Eiffel Tower during our trip.</i>",
-                    deepDive: "Le prétérit 'saw' se distingue nettement du participe 'seen'."
-                }
+                { id: "feel-past", sentence: "She _____ tired after the long journey.", sentenceFr: "Elle s'est sentie fatiguée après le long voyage.", answer: "felt", options: ["feel", "felt", "feeling"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'felt'.",
+                  example: "<i>I felt happy when I heard the news.</i>", deepDive: "Feel / Felt / Felt : 'felt' se prononce [felt]." },
+                { id: "feel-perfect", sentence: "I have never _____ so excited before.", sentenceFr: "Je ne me suis jamais senti aussi excité auparavant.", answer: "felt", options: ["feel", "felt", "feeling"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'felt'.",
+                  example: "<i>She has felt better since the operation.</i>", deepDive: "Feel / Felt / Felt : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Parler", bv: "Speak", preterit: "spoke", pp: "spoken", 
+        { tier: "core", fr: "Apporter / Amener", bv: "Bring", preterit: "brought", pp: "brought", 
             variants: [
-                {
-                    id: "speak-perfect",
-                    sentence: "She has already _____ to the manager.", sentenceFr: "Elle a déjà parlé au gérant.",
-                    answer: "spoken", options: ["speak", "spoke", "spoken"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé en -en ('spoken').",
-                    example: "<i>He has spoken to the press about the incident.</i>",
-                    deepDive: "Ne pas confondre le prétérit 'spoke' avec le participe passé 'spoken'."
-                },
-                {
-                    id: "speak-past",
-                    sentence: "He _____ about his experience at the conference.", sentenceFr: "Il a parlé de son expérience à la conférence.",
-                    answer: "spoke", options: ["speak", "spoke", "spoken"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'spoke'.",
-                    example: "<i>She spoke fluent French at the meeting.</i>",
-                    deepDive: "Speak / Spoke / Spoken : suite vocalique classique."
-                }
+                { id: "bring-past", sentence: "He _____ his sister to the party.", sentenceFr: "Il a amené sa sœur à la fête.", answer: "brought", options: ["bring", "brought", "bringing"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'brought'.",
+                  example: "<i>She brought a cake to the office.</i>", deepDive: "Bring / Brought / Brought : le 'gh' ne se prononce pas, 'brought' se prononce [brɔːt]." },
+                { id: "bring-perfect", sentence: "She has _____ her laptop to the meeting.", sentenceFr: "Elle a apporté son ordinateur portable à la réunion.", answer: "brought", options: ["bring", "brought", "bringing"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'brought'.",
+                  example: "<i>They have brought enough food for everyone.</i>", deepDive: "Bring / Brought / Brought : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Écrire", bv: "Write", preterit: "wrote", pp: "written", 
+        { tier: "core", fr: "Acheter", bv: "Buy", preterit: "bought", pp: "bought", 
             variants: [
-                {
-                    id: "write-passive",
-                    sentence: "A formal letter was _____ by the director.", sentenceFr: "Une lettre officielle a été écrite par le directeur.",
-                    answer: "written", options: ["write", "wrote", "written"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet 'letter' subit l'action. Après 'was', on met le participe passé 'written'.",
-                    example: "<i>The report was written in English.</i>",
-                    deepDive: "Le participe passé 'written' double le 't' et prend un -en final."
-                },
-                {
-                    id: "write-past",
-                    sentence: "She _____ a nice postcard to her parents.", sentenceFr: "Elle a écrit une jolie carte postale à ses parents.",
-                    answer: "wrote", options: ["write", "wrote", "written"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'wrote'.",
-                    example: "<i>He wrote his first novel at 25.</i>",
-                    deepDive: "Write / Wrote / Written : la 3e colonne 'written' est la plus éloignée de la base."
-                }
+                { id: "buy-past", sentence: "She _____ a new car last month.", sentenceFr: "Elle a acheté une nouvelle voiture le mois dernier.", answer: "bought", options: ["buy", "bought", "buying"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last month') : on utilise la 2e colonne 'bought'.",
+                  example: "<i>I bought some flowers for my mother.</i>", deepDive: "Buy / Bought / Bought : le 'gh' ne se prononce pas, 'bought' se prononce [bɔːt]." },
+                { id: "buy-perfect", sentence: "Have you _____ the tickets yet?", sentenceFr: "As-tu déjà acheté les billets ?", answer: "bought", options: ["buy", "bought", "buying"],
+                  rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'bought'.",
+                  example: "<i>We have bought a house in the countryside.</i>", deepDive: "Buy / Bought / Bought : prétérit et participe passé identiques." }
             ]
         },
-        // ===== NOUVEAUX VERBES =====
-        { 
-            fr: "Avoir", bv: "Have", preterit: "had", pp: "had", 
+
+        // ===== VERBES "EXTRA" =====
+        { tier: "extra", fr: "Saigner", bv: "Bleed", preterit: "bled", pp: "bled", 
             variants: [
-                {
-                    id: "have-past",
-                    sentence: "She _____ a great time at the party last night.", sentenceFr: "Elle s'est bien amusée à la fête hier soir.",
-                    answer: "had", options: ["have", "had", "having"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last night') : on utilise la 2e colonne 'had'.",
-                    example: "<i>We had dinner at a nice restaurant.</i>",
-                    deepDive: "Have / Had / Had : prétérit et participe passé identiques."
-                },
-                {
-                    id: "have-perfect",
-                    sentence: "I have _____ this car for five years.", sentenceFr: "J'ai cette voiture depuis cinq ans.",
-                    answer: "had", options: ["have", "had", "having"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'had'.",
-                    example: "<i>She has had that job since 2020.</i>",
-                    deepDive: "Avec 'for' ou 'since', un état qui dure se met au Present Perfect."
-                }
+                { id: "bleed-infinitive", sentence: "The small cut started to _____ slightly.", sentenceFr: "La petite coupure a commencé à saigner légèrement.", answer: "bleed", options: ["bleed", "bled", "bleeding"],
+                  rule: "<b>Infinitif</b> (particule 'to' + base verbale).", reason: "Après la particule infinitive 'to', le verbe reste à la base verbale (infinitif pur).",
+                  example: "<i>She began to bleed after the fall.</i>", deepDive: "À ne pas confondre avec la préposition 'to' suivie d'un gérondif : ici, 'to' introduit un infinitif, donc base verbale." },
+                { id: "bleed-perfect", sentence: "He has _____ on his new shirt.", sentenceFr: "Il a saigné sur sa nouvelle chemise.", answer: "bled", options: ["bleed", "bled", "blood"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' est suivi du participe passé 'bled'.",
+                  example: "<i>The fabric has bled during washing.</i>", deepDive: "Ne pas confondre 'blood' (nom = le sang) avec le verbe conjugué 'bled' (prétérit et participe passé)." }
             ]
         },
-        { 
-            fr: "Faire / Fabriquer", bv: "Make", preterit: "made", pp: "made", 
+        { tier: "extra", fr: "Chuter / Tomber", bv: "Fall", preterit: "fell", pp: "fallen", 
             variants: [
-                {
-                    id: "make-past",
-                    sentence: "She _____ a delicious cake for my birthday.", sentenceFr: "Elle a fait un délicieux gâteau pour mon anniversaire.",
-                    answer: "made", options: ["make", "made", "making"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'made'.",
-                    example: "<i>He made a mistake in the report.</i>",
-                    deepDive: "Make / Made / Made : prétérit et participe passé identiques."
-                },
-                {
-                    id: "make-passive",
-                    sentence: "The decision was _____ by the board.", sentenceFr: "La décision a été prise par le conseil.",
-                    answer: "made", options: ["make", "made", "making"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet 'decision' subit l'action : structure passive avec 'made'.",
-                    example: "<i>The cake was made by my grandmother.</i>",
-                    deepDive: "Passif = BE + participe passé. Ici 'made' porte le sens du verbe 'make'."
-                }
+                { id: "fall-perfect", sentence: "Sales have _____ significantly this month.", sentenceFr: "Les ventes ont chuté de manière significative ce mois-ci.", answer: "fallen", options: ["fall", "fell", "fallen"],
+                  rule: "<b>Present Perfect</b> (HAS/HAVE + Participe Passé).", reason: "L'auxiliaire 'have' (accordé avec 'sales', pluriel) impose le participe passé 'fallen'.",
+                  example: "<i>Temperatures have fallen overnight.</i>", deepDive: "Action passée avec répercussion directe sur la situation présente : c'est le domaine du Present Perfect." },
+                { id: "fall-past", sentence: "He _____ off his bicycle yesterday.", sentenceFr: "Il est tombé de son vélo hier.", answer: "fell", options: ["fall", "fell", "fallen"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Événement ponctuel et daté ('yesterday') dans le passé. On utilise la 2e colonne 'fell'.",
+                  example: "<i>She fell asleep during the movie.</i>", deepDive: "Un marqueur temporel passé explicite ('yesterday', 'last week') impose le prétérit simple, pas le Present Perfect." },
+                { id: "fall-adjective", sentence: "The _____ leaves covered the ground.", sentenceFr: "Les feuilles tombées couvraient le sol.", answer: "fallen", options: ["fall", "fell", "fallen"],
+                  rule: "<b>Participe passé en position d'adjectif</b>.", reason: "Le participe passé 'fallen' qualifie directement le nom 'leaves' (feuilles tombées).",
+                  example: "<i>The fallen tree blocked the road.</i>", deepDive: "Le participe passé peut devenir adjectif qualificatif : il perd alors sa fonction verbale et s'accorde en position d'épithète." }
             ]
         },
-        { 
-            fr: "Dire", bv: "Say", preterit: "said", pp: "said", 
+        { tier: "extra", fr: "Casser", bv: "Break", preterit: "broke", pp: "broken", 
             variants: [
-                {
-                    id: "say-past",
-                    sentence: "He _____ he would come tomorrow.", sentenceFr: "Il a dit qu'il viendrait demain.",
-                    answer: "said", options: ["say", "said", "saying"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'said'.",
-                    example: "<i>She said goodbye and left.</i>",
-                    deepDive: "Say / Said / Said : la prononciation de 'said' est [sɛd], pas [seɪd]."
-                },
-                {
-                    id: "say-perfect",
-                    sentence: "She has _____ everything she knows.", sentenceFr: "Elle a dit tout ce qu'elle savait.",
-                    answer: "said", options: ["say", "said", "saying"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'said'.",
-                    example: "<i>I have said all I wanted to say.</i>",
-                    deepDive: "Say / Said / Said : prétérit et participe passé identiques."
-                }
+                { id: "break-adjective", sentence: "Be careful not to drop that _____ glass.", sentenceFr: "Fais attention de ne pas faire tomber ce verre cassé.", answer: "broken", options: ["break", "broke", "broken"],
+                  rule: "<b>Participe passé en position d'adjectif</b>.", reason: "Le verbe qualifie le nom 'glass' (un verre cassé) : on utilise la 3e colonne 'broken'.",
+                  example: "<i>A broken promise is hard to forget.</i>", deepDive: "Le participe passé d'un verbe irrégulier peut fonctionner comme adjectif qualificatif, toujours avec la 3e colonne." },
+                { id: "break-past", sentence: "She _____ her phone screen last night.", sentenceFr: "Elle a cassé l'écran de son téléphone la nuit dernière.", answer: "broke", options: ["break", "broke", "broken"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last night') où le sujet agit directement.",
+                  example: "<i>He broke the world record.</i>", deepDive: "Le prétérit simple 'broke' (2e colonne) indique l'action de casser à un moment précis, sans auxiliaire." },
+                { id: "break-perfect", sentence: "The washing machine has _____ down again.", sentenceFr: "La machine à laver est encore tombée en panne.", answer: "broken", options: ["break", "broke", "broken"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' impose le participe passé 'broken' (verbe à particule 'break down').",
+                  example: "<i>My car has broken down on the motorway.</i>", deepDive: "Avec les verbes à particule, l'auxiliaire se place avant le verbe conjugué et la particule reste à la fin." }
             ]
         },
-        { 
-            fr: "Obtenir / Devenir", bv: "Get", preterit: "got", pp: "got / gotten", 
+        { tier: "extra", fr: "Commencer", bv: "Begin", preterit: "began", pp: "begun", 
             variants: [
-                {
-                    id: "get-past",
-                    sentence: "I _____ a letter from my sister yesterday.", sentenceFr: "J'ai reçu une lettre de ma sœur hier.",
-                    answer: "got", options: ["get", "got", "gotten"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'got'.",
-                    example: "<i>We got lost in the city.</i>",
-                    deepDive: "Get / Got / Got (UK) ou Gotten (US) : les deux formes sont acceptées en anglais britannique moderne pour le participe passé."
-                },
-                {
-                    id: "get-perfect",
-                    sentence: "She has _____ a new job in London.", sentenceFr: "Elle a obtenu un nouveau travail à Londres.",
-                    answer: "got", options: ["get", "got", "gotten"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'got' (ou 'gotten' en américain).",
-                    example: "<i>They have gotten used to the weather.</i>",
-                    deepDive: "'Gotten' est courant en anglais américain, 'got' domine en anglais britannique."
-                }
+                { id: "begin-perfect", sentence: "The meeting has already _____.", sentenceFr: "La réunion a déjà commencé.", answer: "begun", options: ["begin", "began", "begun"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "Associé à l'auxiliaire 'has', le verbe begin prend sa forme en -un (begun).",
+                  example: "<i>The film has begun on time.</i>", deepDive: "Suite vocalique : Begin (I) → Began (A) → Begun (U)." },
+                { id: "begin-past", sentence: "The concert _____ at eight o'clock sharp.", sentenceFr: "Le concert a commencé à huit heures précises.", answer: "began", options: ["begin", "began", "begun"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Événement daté et ponctuel dans le passé : on utilise la 2e colonne 'began'.",
+                  example: "<i>The story began in a small village.</i>", deepDive: "Un horaire précis dans le passé appelle le prétérit simple, pas le Present Perfect." }
             ]
         },
-        { 
-            fr: "Venir", bv: "Come", preterit: "came", pp: "come", 
+        { tier: "extra", fr: "Choisir", bv: "Choose", preterit: "chose", pp: "chosen", 
             variants: [
-                {
-                    id: "come-past",
-                    sentence: "She _____ to the party late.", sentenceFr: "Elle est venue à la fête en retard.",
-                    answer: "came", options: ["come", "came", "coming"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'came'.",
-                    example: "<i>He came home after midnight.</i>",
-                    deepDive: "Come / Came / Come : la 1re et la 3e colonne sont identiques."
-                },
-                {
-                    id: "come-perfect",
-                    sentence: "She has just _____ back from Italy.", sentenceFr: "Elle vient juste de rentrer d'Italie.",
-                    answer: "come", options: ["come", "came", "coming"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'come', identique à la base verbale.",
-                    example: "<i>They have come to help us.</i>",
-                    deepDive: "Piège : 'come' (participe) ne prend pas de -ing ni de -e final."
-                }
+                { id: "choose-perfect", sentence: "They have _____ the best hotel for the vacation.", sentenceFr: "Ils ont choisi le meilleur hôtel pour les vacances.", answer: "chosen", options: ["choose", "chose", "chosen"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "Avec l'auxiliaire 'have', on utilise le participe passé 'chosen'.",
+                  example: "<i>She has chosen a blue dress for the party.</i>", deepDive: "Le participe passé conserve le double 'o' et ajoute un -n ('chosen')." },
+                { id: "choose-past", sentence: "She _____ a blue dress for the party.", sentenceFr: "Elle a choisi une robe bleue pour la fête.", answer: "chose", options: ["choose", "chose", "chosen"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue, sans auxiliaire : on utilise la 2e colonne 'chose'.",
+                  example: "<i>He chose the red car over the blue one.</i>", deepDive: "Attention à la prononciation : 'chose' (prétérit) se prononce avec un 'o' long, contrairement à 'choose'." }
             ]
         },
-        { 
-            fr: "Penser", bv: "Think", preterit: "thought", pp: "thought", 
+        { tier: "extra", fr: "Boire", bv: "Drink", preterit: "drank", pp: "drunk", 
             variants: [
-                {
-                    id: "think-past",
-                    sentence: "I _____ it was a good idea at the time.", sentenceFr: "Je pensais que c'était une bonne idée à l'époque.",
-                    answer: "thought", options: ["think", "thought", "thinking"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'thought'.",
-                    example: "<i>She thought about it all night.</i>",
-                    deepDive: "Think / Thought / Thought : le 'gh' ne se prononce pas, 'thought' se prononce [θɔːt]."
-                },
-                {
-                    id: "think-perfect",
-                    sentence: "I have _____ about your offer carefully.", sentenceFr: "J'ai réfléchi attentivement à votre offre.",
-                    answer: "thought", options: ["think", "thought", "thinking"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'thought'.",
-                    example: "<i>We have thought about moving abroad.</i>",
-                    deepDive: "Think / Thought / Thought : prétérit et participe passé identiques."
-                }
+                { id: "drink-perfect", sentence: "He has _____ two cups of coffee this morning.", sentenceFr: "Il a bu deux tasses de café ce matin.", answer: "drunk", options: ["drink", "drank", "drunk"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "Après l'auxiliaire 'has', on utilise la 3e colonne 'drunk'.",
+                  example: "<i>She has drunk too much coffee today.</i>", deepDive: "Même règle vocalique que begin : Drink (I) → Drank (A) → Drunk (U)." },
+                { id: "drink-past", sentence: "She _____ orange juice for breakfast.", sentenceFr: "Elle a bu du jus d'orange au petit-déjeuner.", answer: "drank", options: ["drink", "drank", "drunk"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'drank'.",
+                  example: "<i>We drank water after the run.</i>", deepDive: "'Drunk' seul est aussi un adjectif (ivre) : dans un contexte verbal, il faut toujours un auxiliaire." }
             ]
         },
-        { 
-            fr: "Acheter", bv: "Buy", preterit: "bought", pp: "bought", 
+        { tier: "extra", fr: "Manger", bv: "Eat", preterit: "ate", pp: "eaten", 
             variants: [
-                {
-                    id: "buy-past",
-                    sentence: "She _____ a new car last month.", sentenceFr: "Elle a acheté une nouvelle voiture le mois dernier.",
-                    answer: "bought", options: ["buy", "bought", "buying"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last month') : on utilise la 2e colonne 'bought'.",
-                    example: "<i>I bought some flowers for my mother.</i>",
-                    deepDive: "Buy / Bought / Bought : le 'gh' ne se prononce pas, 'bought' se prononce [bɔːt]."
-                },
-                {
-                    id: "buy-perfect",
-                    sentence: "Have you _____ the tickets yet?", sentenceFr: "As-tu déjà acheté les billets ?",
-                    answer: "bought", options: ["buy", "bought", "buying"],
-                    rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'bought'.",
-                    example: "<i>We have bought a house in the countryside.</i>",
-                    deepDive: "Buy / Bought / Bought : prétérit et participe passé identiques."
-                }
+                { id: "eat-perfect", sentence: "Somebody has _____ my sandwich!", sentenceFr: "Quelqu'un a mangé mon sandwich !", answer: "eaten", options: ["eat", "ate", "eaten"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' impose le participe passé 'eaten'.",
+                  example: "<i>She has eaten all the cookies.</i>", deepDive: "Le participe passé 'eaten' prend une terminaison en -en, typique de nombreux verbes irréguliers." },
+                { id: "eat-past", sentence: "We _____ pizza last night.", sentenceFr: "Nous avons mangé de la pizza hier soir.", answer: "ate", options: ["eat", "ate", "eaten"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last night') : on utilise la 2e colonne 'ate'.",
+                  example: "<i>He ate a huge breakfast.</i>", deepDive: "Le prétérit 'ate' se prononce avec un 'e' long, comme dans 'eight'." }
             ]
         },
-        { 
-            fr: "Apporter / Amener", bv: "Bring", preterit: "brought", pp: "brought", 
+        { tier: "extra", fr: "Entendre", bv: "Hear", preterit: "heard", pp: "heard", 
             variants: [
-                {
-                    id: "bring-past",
-                    sentence: "He _____ his sister to the party.", sentenceFr: "Il a amené sa sœur à la fête.",
-                    answer: "brought", options: ["bring", "brought", "bringing"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'brought'.",
-                    example: "<i>She brought a cake to the office.</i>",
-                    deepDive: "Bring / Brought / Brought : le 'gh' ne se prononce pas, 'brought' se prononce [brɔːt]."
-                },
-                {
-                    id: "bring-perfect",
-                    sentence: "She has _____ her laptop to the meeting.", sentenceFr: "Elle a apporté son ordinateur portable à la réunion.",
-                    answer: "brought", options: ["bring", "brought", "bringing"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'brought'.",
-                    example: "<i>They have brought enough food for everyone.</i>",
-                    deepDive: "Bring / Brought / Brought : prétérit et participe passé identiques."
-                }
+                { id: "hear-past", sentence: "I _____ a strange noise outside.", sentenceFr: "J'ai entendu un bruit étrange dehors.", answer: "heard", options: ["hear", "heard", "hearing"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Perception passée et révolue. Le prétérit est 'heard'.",
+                  example: "<i>She heard the good news this morning.</i>", deepDive: "Attention à l'orthographe de 'heard' qui intègre un 'a' (ne pas écrire 'hered')." },
+                { id: "hear-perfect", sentence: "Have you _____ about the new project?", sentenceFr: "As-tu entendu parler du nouveau projet ?", answer: "heard", options: ["hear", "heard", "hearing"],
+                  rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'heard', identique au prétérit.",
+                  example: "<i>I have never heard such a story.</i>", deepDive: "Hear / Heard / Heard : prétérit et participe passé identiques, comme pour 'find' ou 'bleed'." }
             ]
         },
-        { 
-            fr: "Enseigner", bv: "Teach", preterit: "taught", pp: "taught", 
+        { tier: "extra", fr: "Lire", bv: "Read", preterit: "read", pp: "read", 
             variants: [
-                {
-                    id: "teach-past",
-                    sentence: "She _____ English in a high school for ten years.", sentenceFr: "Elle a enseigné l'anglais dans un lycée pendant dix ans.",
-                    answer: "taught", options: ["teach", "taught", "teaching"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'taught'.",
-                    example: "<i>He taught me how to play chess.</i>",
-                    deepDive: "Teach / Taught / Taught : le 'gh' ne se prononce pas, 'taught' se prononce [tɔːt]."
-                },
-                {
-                    id: "teach-passive",
-                    sentence: "English is _____ in many countries around the world.", sentenceFr: "L'anglais est enseigné dans de nombreux pays à travers le monde.",
-                    answer: "taught", options: ["teach", "taught", "teaching"],
-                    rule: "<b>Voix passive</b> (BE + Participe Passé).",
-                    reason: "Le sujet 'English' subit l'action : structure passive 'is' + participe passé 'taught'.",
-                    example: "<i>Latin was taught in schools for centuries.</i>",
-                    deepDive: "Passif au présent = AM/IS/ARE + participe passé."
-                }
+                { id: "read-past", sentence: "She _____ an interesting book last week.", sentenceFr: "Elle a lu un livre intéressant la semaine dernière.", answer: "read", options: ["read", "reads", "reading"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée de lecture. L'orthographe reste 'read' à tous les temps, seule la prononciation change.",
+                  example: "<i>He read the whole report in one hour.</i>", deepDive: "Piège d'orthographe : 'read' s'écrit pareil partout, mais se prononce [ri:d] au présent et [rɛd] au prétérit/participe passé." },
+                { id: "read-perfect", sentence: "I have already _____ this novel twice.", sentenceFr: "J'ai déjà lu ce roman deux fois.", answer: "read", options: ["read", "reads", "reading"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'read' (même orthographe, prononciation [rɛd]).",
+                  example: "<i>She has read all the Harry Potter books.</i>", deepDive: "À l'oral, bien prononcer [rɛd] après 'have' pour marquer le participe passé." }
             ]
         },
-        { 
-            fr: "Attraper", bv: "Catch", preterit: "caught", pp: "caught", 
+        { tier: "extra", fr: "Parler", bv: "Speak", preterit: "spoke", pp: "spoken", 
             variants: [
-                {
-                    id: "catch-past",
-                    sentence: "He _____ the ball with one hand.", sentenceFr: "Il a attrapé le ballon d'une seule main.",
-                    answer: "caught", options: ["catch", "caught", "catching"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'caught'.",
-                    example: "<i>She caught a cold last winter.</i>",
-                    deepDive: "Catch / Caught / Caught : le 'gh' ne se prononce pas, 'caught' se prononce [kɔːt]."
-                },
-                {
-                    id: "catch-passive",
-                    sentence: "The thief was _____ by the police.", sentenceFr: "Le voleur a été attrapé par la police.",
-                    answer: "caught", options: ["catch", "caught", "catching"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet 'thief' subit l'action : structure passive 'was' + participe passé 'caught'.",
-                    example: "<i>The fish was caught in a net.</i>",
-                    deepDive: "Passif au passé = WAS/WERE + participe passé."
-                }
+                { id: "speak-perfect", sentence: "She has already _____ to the manager.", sentenceFr: "Elle a déjà parlé au gérant.", answer: "spoken", options: ["speak", "spoke", "spoken"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé en -en ('spoken').",
+                  example: "<i>He has spoken to the press about the incident.</i>", deepDive: "Ne pas confondre le prétérit 'spoke' avec le participe passé 'spoken'." },
+                { id: "speak-past", sentence: "He _____ about his experience at the conference.", sentenceFr: "Il a parlé de son expérience à la conférence.", answer: "spoke", options: ["speak", "spoke", "spoken"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'spoke'.",
+                  example: "<i>She spoke fluent French at the meeting.</i>", deepDive: "Speak / Spoke / Spoken : suite vocalique classique." }
             ]
         },
-        { 
-            fr: "Voler (dans les airs)", bv: "Fly", preterit: "flew", pp: "flown", 
+        { tier: "extra", fr: "Écrire", bv: "Write", preterit: "wrote", pp: "written", 
             variants: [
-                {
-                    id: "fly-past",
-                    sentence: "They _____ to New York for the weekend.", sentenceFr: "Ils ont pris l'avion pour New York pour le week-end.",
-                    answer: "flew", options: ["fly", "flew", "flown"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'flew'.",
-                    example: "<i>She flew to Paris for a business meeting.</i>",
-                    deepDive: "Fly / Flew / Flown : suite vocalique classique."
-                },
-                {
-                    id: "fly-perfect",
-                    sentence: "I have never _____ in a helicopter.", sentenceFr: "Je n'ai jamais volé en hélicoptère.",
-                    answer: "flown", options: ["fly", "flew", "flown"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'flown'.",
-                    example: "<i>They have flown over the Alps.</i>",
-                    deepDive: "Fly / Flew / Flown : la 3e colonne 'flown' prend un -n final."
-                }
+                { id: "write-passive", sentence: "A formal letter was _____ by the director.", sentenceFr: "Une lettre officielle a été écrite par le directeur.", answer: "written", options: ["write", "wrote", "written"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet 'letter' subit l'action. Après 'was', on met le participe passé 'written'.",
+                  example: "<i>The report was written in English.</i>", deepDive: "Le participe passé 'written' double le 't' et prend un -en final." },
+                { id: "write-past", sentence: "She _____ a nice postcard to her parents.", sentenceFr: "Elle a écrit une jolie carte postale à ses parents.", answer: "wrote", options: ["write", "wrote", "written"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'wrote'.",
+                  example: "<i>He wrote his first novel at 25.</i>", deepDive: "Write / Wrote / Written : la 3e colonne 'written' est la plus éloignée de la base." }
             ]
         },
-        { 
-            fr: "Chanter", bv: "Sing", preterit: "sang", pp: "sung", 
+        { tier: "extra", fr: "Enseigner", bv: "Teach", preterit: "taught", pp: "taught", 
             variants: [
-                {
-                    id: "sing-past",
-                    sentence: "She _____ a beautiful song at the concert.", sentenceFr: "Elle a chanté une belle chanson au concert.",
-                    answer: "sang", options: ["sing", "sang", "sung"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'sang'.",
-                    example: "<i>The birds sang all morning.</i>",
-                    deepDive: "Sing / Sang / Sung : même règle vocalique que drink et begin."
-                },
-                {
-                    id: "sing-perfect",
-                    sentence: "She has _____ in a choir since childhood.", sentenceFr: "Elle chante dans une chorale depuis l'enfance.",
-                    answer: "sung", options: ["sing", "sang", "sung"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'sung'.",
-                    example: "<i>They have sung together for years.</i>",
-                    deepDive: "Sing / Sang / Sung : la 3e colonne 'sung' se termine en -ung."
-                }
+                { id: "teach-past", sentence: "She _____ English in a high school for ten years.", sentenceFr: "Elle a enseigné l'anglais dans un lycée pendant dix ans.", answer: "taught", options: ["teach", "taught", "teaching"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'taught'.",
+                  example: "<i>He taught me how to play chess.</i>", deepDive: "Teach / Taught / Taught : le 'gh' ne se prononce pas, 'taught' se prononce [tɔːt]." },
+                { id: "teach-passive", sentence: "English is _____ in many countries around the world.", sentenceFr: "L'anglais est enseigné dans de nombreux pays à travers le monde.", answer: "taught", options: ["teach", "taught", "teaching"],
+                  rule: "<b>Voix passive</b> (BE + Participe Passé).", reason: "Le sujet 'English' subit l'action : structure passive 'is' + participe passé 'taught'.",
+                  example: "<i>Latin was taught in schools for centuries.</i>", deepDive: "Passif au présent = AM/IS/ARE + participe passé." }
             ]
         },
-        { 
-            fr: "Nager", bv: "Swim", preterit: "swam", pp: "swum", 
+        { tier: "extra", fr: "Attraper", bv: "Catch", preterit: "caught", pp: "caught", 
             variants: [
-                {
-                    id: "swim-past",
-                    sentence: "She _____ across the lake last summer.", sentenceFr: "Elle a traversé le lac à la nage l'été dernier.",
-                    answer: "swam", options: ["swim", "swam", "swum"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last summer') : on utilise la 2e colonne 'swam'.",
-                    example: "<i>He swam in the ocean for the first time.</i>",
-                    deepDive: "Swim / Swam / Swum : même règle vocalique que sing et drink."
-                },
-                {
-                    id: "swim-perfect",
-                    sentence: "Have you ever _____ in the Mediterranean?", sentenceFr: "As-tu déjà nagé dans la Méditerranée ?",
-                    answer: "swum", options: ["swim", "swam", "swum"],
-                    rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'swum'.",
-                    example: "<i>She has swum with dolphins.</i>",
-                    deepDive: "Swim / Swam / Swum : la 3e colonne 'swum' se termine en -um."
-                }
+                { id: "catch-past", sentence: "He _____ the ball with one hand.", sentenceFr: "Il a attrapé le ballon d'une seule main.", answer: "caught", options: ["catch", "caught", "catching"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'caught'.",
+                  example: "<i>She caught a cold last winter.</i>", deepDive: "Catch / Caught / Caught : le 'gh' ne se prononce pas, 'caught' se prononce [kɔːt]." },
+                { id: "catch-passive", sentence: "The thief was _____ by the police.", sentenceFr: "Le voleur a été attrapé par la police.", answer: "caught", options: ["catch", "caught", "catching"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet 'thief' subit l'action : structure passive 'was' + participe passé 'caught'.",
+                  example: "<i>The fish was caught in a net.</i>", deepDive: "Passif au passé = WAS/WERE + participe passé." }
             ]
         },
-        { 
-            fr: "Conduire", bv: "Drive", preterit: "drove", pp: "driven", 
+        { tier: "extra", fr: "Voler (dans les airs)", bv: "Fly", preterit: "flew", pp: "flown", 
             variants: [
-                {
-                    id: "drive-past",
-                    sentence: "He _____ to work this morning.", sentenceFr: "Il a conduit au travail ce matin.",
-                    answer: "drove", options: ["drive", "drove", "driven"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'drove'.",
-                    example: "<i>She drove us to the airport.</i>",
-                    deepDive: "Drive / Drove / Driven : la 3e colonne 'driven' prend un -en final."
-                },
-                {
-                    id: "drive-perfect",
-                    sentence: "I have never _____ a manual car.", sentenceFr: "Je n'ai jamais conduit une voiture manuelle.",
-                    answer: "driven", options: ["drive", "drove", "driven"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'driven'.",
-                    example: "<i>They have driven across the country.</i>",
-                    deepDive: "Drive / Drove / Driven : attention à ne pas confondre 'drove' et 'driven'."
-                }
+                { id: "fly-past", sentence: "They _____ to New York for the weekend.", sentenceFr: "Ils ont pris l'avion pour New York pour le week-end.", answer: "flew", options: ["fly", "flew", "flown"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'flew'.",
+                  example: "<i>She flew to Paris for a business meeting.</i>", deepDive: "Fly / Flew / Flown : suite vocalique classique." },
+                { id: "fly-perfect", sentence: "I have never _____ in a helicopter.", sentenceFr: "Je n'ai jamais volé en hélicoptère.", answer: "flown", options: ["fly", "flew", "flown"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'flown'.",
+                  example: "<i>They have flown over the Alps.</i>", deepDive: "Fly / Flew / Flown : la 3e colonne 'flown' prend un -n final." }
             ]
         },
-        { 
-            fr: "Gagner", bv: "Win", preterit: "won", pp: "won", 
+        { tier: "extra", fr: "Chanter", bv: "Sing", preterit: "sang", pp: "sung", 
             variants: [
-                {
-                    id: "win-past",
-                    sentence: "Our team _____ the championship last year.", sentenceFr: "Notre équipe a gagné le championnat l'année dernière.",
-                    answer: "won", options: ["win", "won", "winning"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last year') : on utilise la 2e colonne 'won'.",
-                    example: "<i>She won the first prize in the contest.</i>",
-                    deepDive: "Win / Won / Won : 'won' se prononce [wʌn], comme 'one'."
-                },
-                {
-                    id: "win-perfect",
-                    sentence: "They have _____ three matches in a row.", sentenceFr: "Ils ont gagné trois matchs d'affilée.",
-                    answer: "won", options: ["win", "won", "winning"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'won'.",
-                    example: "<i>He has won several awards.</i>",
-                    deepDive: "Win / Won / Won : prétérit et participe passé identiques."
-                }
+                { id: "sing-past", sentence: "She _____ a beautiful song at the concert.", sentenceFr: "Elle a chanté une belle chanson au concert.", answer: "sang", options: ["sing", "sang", "sung"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'sang'.",
+                  example: "<i>The birds sang all morning.</i>", deepDive: "Sing / Sang / Sung : même règle vocalique que drink et begin." },
+                { id: "sing-perfect", sentence: "She has _____ in a choir since childhood.", sentenceFr: "Elle chante dans une chorale depuis l'enfance.", answer: "sung", options: ["sing", "sang", "sung"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'sung'.",
+                  example: "<i>They have sung together for years.</i>", deepDive: "Sing / Sang / Sung : la 3e colonne 'sung' se termine en -ung." }
             ]
         },
-        { 
-            fr: "Perdre", bv: "Lose", preterit: "lost", pp: "lost", 
+        { tier: "extra", fr: "Nager", bv: "Swim", preterit: "swam", pp: "swum", 
             variants: [
-                {
-                    id: "lose-past",
-                    sentence: "She _____ her keys on the way home.", sentenceFr: "Elle a perdu ses clés en rentrant à la maison.",
-                    answer: "lost", options: ["lose", "lost", "losing"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'lost'.",
-                    example: "<i>He lost his wallet at the station.</i>",
-                    deepDive: "Lose / Lost / Lost : le 'o' de 'lose' devient 'o' court dans 'lost'."
-                },
-                {
-                    id: "lose-perfect",
-                    sentence: "Our team has _____ every game this season.", sentenceFr: "Notre équipe a perdu tous les matchs cette saison.",
-                    answer: "lost", options: ["lose", "lost", "losing"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'lost'.",
-                    example: "<i>She has lost weight since last year.</i>",
-                    deepDive: "Lose / Lost / Lost : prétérit et participe passé identiques."
-                }
+                { id: "swim-past", sentence: "She _____ across the lake last summer.", sentenceFr: "Elle a traversé le lac à la nage l'été dernier.", answer: "swam", options: ["swim", "swam", "swum"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last summer') : on utilise la 2e colonne 'swam'.",
+                  example: "<i>He swam in the ocean for the first time.</i>", deepDive: "Swim / Swam / Swum : même règle vocalique que sing et drink." },
+                { id: "swim-perfect", sentence: "Have you ever _____ in the Mediterranean?", sentenceFr: "As-tu déjà nagé dans la Méditerranée ?", answer: "swum", options: ["swim", "swam", "swum"],
+                  rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'swum'.",
+                  example: "<i>She has swum with dolphins.</i>", deepDive: "Swim / Swam / Swum : la 3e colonne 'swum' se termine en -um." }
             ]
         },
-        { 
-            fr: "Payer", bv: "Pay", preterit: "paid", pp: "paid", 
+        { tier: "extra", fr: "Conduire", bv: "Drive", preterit: "drove", pp: "driven", 
             variants: [
-                {
-                    id: "pay-past",
-                    sentence: "He _____ for dinner last night.", sentenceFr: "Il a payé le dîner hier soir.",
-                    answer: "paid", options: ["pay", "paid", "paying"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last night') : on utilise la 2e colonne 'paid'.",
-                    example: "<i>She paid for the tickets in advance.</i>",
-                    deepDive: "Pay / Paid / Paid : 'paid' se prononce [peɪd], comme 'pay' + 'd'."
-                },
-                {
-                    id: "pay-passive",
-                    sentence: "The workers are _____ every Friday.", sentenceFr: "Les ouvriers sont payés chaque vendredi.",
-                    answer: "paid", options: ["pay", "paid", "paying"],
-                    rule: "<b>Voix passive</b> (BE + Participe Passé).",
-                    reason: "Le sujet 'workers' subit l'action : structure passive 'are' + participe passé 'paid'.",
-                    example: "<i>The invoice was paid on time.</i>",
-                    deepDive: "Passif au présent = AM/IS/ARE + participe passé."
-                }
+                { id: "drive-past", sentence: "He _____ to work this morning.", sentenceFr: "Il a conduit au travail ce matin.", answer: "drove", options: ["drive", "drove", "driven"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'drove'.",
+                  example: "<i>She drove us to the airport.</i>", deepDive: "Drive / Drove / Driven : la 3e colonne 'driven' prend un -en final." },
+                { id: "drive-perfect", sentence: "I have never _____ a manual car.", sentenceFr: "Je n'ai jamais conduit une voiture manuelle.", answer: "driven", options: ["drive", "drove", "driven"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'driven'.",
+                  example: "<i>They have driven across the country.</i>", deepDive: "Drive / Drove / Driven : attention à ne pas confondre 'drove' et 'driven'." }
             ]
         },
-        { 
-            fr: "Vendre", bv: "Sell", preterit: "sold", pp: "sold", 
+        { tier: "extra", fr: "Gagner", bv: "Win", preterit: "won", pp: "won", 
             variants: [
-                {
-                    id: "sell-past",
-                    sentence: "They _____ their old house last year.", sentenceFr: "Ils ont vendu leur vieille maison l'année dernière.",
-                    answer: "sold", options: ["sell", "sold", "selling"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last year') : on utilise la 2e colonne 'sold'.",
-                    example: "<i>He sold his car to a friend.</i>",
-                    deepDive: "Sell / Sold / Sold : 'sold' se prononce [səʊld]."
-                },
-                {
-                    id: "sell-passive",
-                    sentence: "The painting was _____ to a private collector.", sentenceFr: "Le tableau a été vendu à un collectionneur privé.",
-                    answer: "sold", options: ["sell", "sold", "selling"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet 'painting' subit l'action : structure passive 'was' + participe passé 'sold'.",
-                    example: "<i>The tickets were sold out in minutes.</i>",
-                    deepDive: "Passif au passé = WAS/WERE + participe passé."
-                }
+                { id: "win-past", sentence: "Our team _____ the championship last year.", sentenceFr: "Notre équipe a gagné le championnat l'année dernière.", answer: "won", options: ["win", "won", "winning"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last year') : on utilise la 2e colonne 'won'.",
+                  example: "<i>She won the first prize in the contest.</i>", deepDive: "Win / Won / Won : 'won' se prononce [wʌn], comme 'one'." },
+                { id: "win-perfect", sentence: "They have _____ three matches in a row.", sentenceFr: "Ils ont gagné trois matchs d'affilée.", answer: "won", options: ["win", "won", "winning"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'won'.",
+                  example: "<i>He has won several awards.</i>", deepDive: "Win / Won / Won : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Envoyer", bv: "Send", preterit: "sent", pp: "sent", 
+        { tier: "extra", fr: "Perdre", bv: "Lose", preterit: "lost", pp: "lost", 
             variants: [
-                {
-                    id: "send-past",
-                    sentence: "She _____ me an email yesterday.", sentenceFr: "Elle m'a envoyé un email hier.",
-                    answer: "sent", options: ["send", "sent", "sending"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'sent'.",
-                    example: "<i>He sent a postcard from Rome.</i>",
-                    deepDive: "Send / Sent / Sent : 'sent' se prononce [sent], proche de 'cent'."
-                },
-                {
-                    id: "send-perfect",
-                    sentence: "I have _____ the package this morning.", sentenceFr: "J'ai envoyé le colis ce matin.",
-                    answer: "sent", options: ["send", "sent", "sending"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'sent'.",
-                    example: "<i>They have sent the invitation already.</i>",
-                    deepDive: "Send / Sent / Sent : prétérit et participe passé identiques."
-                }
+                { id: "lose-past", sentence: "She _____ her keys on the way home.", sentenceFr: "Elle a perdu ses clés en rentrant à la maison.", answer: "lost", options: ["lose", "lost", "losing"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'lost'.",
+                  example: "<i>He lost his wallet at the station.</i>", deepDive: "Lose / Lost / Lost : le 'o' de 'lose' devient 'o' court dans 'lost'." },
+                { id: "lose-perfect", sentence: "Our team has _____ every game this season.", sentenceFr: "Notre équipe a perdu tous les matchs cette saison.", answer: "lost", options: ["lose", "lost", "losing"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'lost'.",
+                  example: "<i>She has lost weight since last year.</i>", deepDive: "Lose / Lost / Lost : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Construire", bv: "Build", preterit: "built", pp: "built", 
+        { tier: "extra", fr: "Payer", bv: "Pay", preterit: "paid", pp: "paid", 
             variants: [
-                {
-                    id: "build-past",
-                    sentence: "They _____ a new bridge across the river.", sentenceFr: "Ils ont construit un nouveau pont sur la rivière.",
-                    answer: "built", options: ["build", "built", "building"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'built'.",
-                    example: "<i>He built a treehouse for his kids.</i>",
-                    deepDive: "Build / Built / Built : 'built' se prononce [bɪlt]."
-                },
-                {
-                    id: "build-passive",
-                    sentence: "The castle was _____ in the 12th century.", sentenceFr: "Le château a été construit au XIIe siècle.",
-                    answer: "built", options: ["build", "built", "building"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet 'castle' subit l'action : structure passive 'was' + participe passé 'built'.",
-                    example: "<i>The house was built by my grandfather.</i>",
-                    deepDive: "Passif au passé = WAS/WERE + participe passé."
-                }
+                { id: "pay-past", sentence: "He _____ for dinner last night.", sentenceFr: "Il a payé le dîner hier soir.", answer: "paid", options: ["pay", "paid", "paying"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last night') : on utilise la 2e colonne 'paid'.",
+                  example: "<i>She paid for the tickets in advance.</i>", deepDive: "Pay / Paid / Paid : 'paid' se prononce [peɪd], comme 'pay' + 'd'." },
+                { id: "pay-passive", sentence: "The workers are _____ every Friday.", sentenceFr: "Les ouvriers sont payés chaque vendredi.", answer: "paid", options: ["pay", "paid", "paying"],
+                  rule: "<b>Voix passive</b> (BE + Participe Passé).", reason: "Le sujet 'workers' subit l'action : structure passive 'are' + participe passé 'paid'.",
+                  example: "<i>The invoice was paid on time.</i>", deepDive: "Passif au présent = AM/IS/ARE + participe passé." }
             ]
         },
-        { 
-            fr: "Ressentir", bv: "Feel", preterit: "felt", pp: "felt", 
+        { tier: "extra", fr: "Vendre", bv: "Sell", preterit: "sold", pp: "sold", 
             variants: [
-                {
-                    id: "feel-past",
-                    sentence: "She _____ tired after the long journey.", sentenceFr: "Elle s'est sentie fatiguée après le long voyage.",
-                    answer: "felt", options: ["feel", "felt", "feeling"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'felt'.",
-                    example: "<i>I felt happy when I heard the news.</i>",
-                    deepDive: "Feel / Felt / Felt : 'felt' se prononce [felt]."
-                },
-                {
-                    id: "feel-perfect",
-                    sentence: "I have never _____ so excited before.", sentenceFr: "Je ne me suis jamais senti aussi excité auparavant.",
-                    answer: "felt", options: ["feel", "felt", "feeling"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'felt'.",
-                    example: "<i>She has felt better since the operation.</i>",
-                    deepDive: "Feel / Felt / Felt : prétérit et participe passé identiques."
-                }
+                { id: "sell-past", sentence: "They _____ their old house last year.", sentenceFr: "Ils ont vendu leur vieille maison l'année dernière.", answer: "sold", options: ["sell", "sold", "selling"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last year') : on utilise la 2e colonne 'sold'.",
+                  example: "<i>He sold his car to a friend.</i>", deepDive: "Sell / Sold / Sold : 'sold' se prononce [səʊld]." },
+                { id: "sell-passive", sentence: "The painting was _____ to a private collector.", sentenceFr: "Le tableau a été vendu à un collectionneur privé.", answer: "sold", options: ["sell", "sold", "selling"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet 'painting' subit l'action : structure passive 'was' + participe passé 'sold'.",
+                  example: "<i>The tickets were sold out in minutes.</i>", deepDive: "Passif au passé = WAS/WERE + participe passé." }
             ]
         },
-        { 
-            fr: "Partir / Quitter", bv: "Leave", preterit: "left", pp: "left", 
+        { tier: "extra", fr: "Envoyer", bv: "Send", preterit: "sent", pp: "sent", 
             variants: [
-                {
-                    id: "leave-past",
-                    sentence: "She _____ the office at six o'clock.", sentenceFr: "Elle a quitté le bureau à six heures.",
-                    answer: "left", options: ["leave", "left", "leaving"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'left'.",
-                    example: "<i>He left home at eighteen.</i>",
-                    deepDive: "Leave / Left / Left : 'left' se prononce [left]."
-                },
-                {
-                    id: "leave-perfect",
-                    sentence: "The train has already _____.", sentenceFr: "Le train est déjà parti.",
-                    answer: "left", options: ["leave", "left", "leaving"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'left'.",
-                    example: "<i>She has left her umbrella at the restaurant.</i>",
-                    deepDive: "Leave / Left / Left : prétérit et participe passé identiques."
-                }
+                { id: "send-past", sentence: "She _____ me an email yesterday.", sentenceFr: "Elle m'a envoyé un email hier.", answer: "sent", options: ["send", "sent", "sending"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('yesterday') : on utilise la 2e colonne 'sent'.",
+                  example: "<i>He sent a postcard from Rome.</i>", deepDive: "Send / Sent / Sent : 'sent' se prononce [sent], proche de 'cent'." },
+                { id: "send-perfect", sentence: "I have _____ the package this morning.", sentenceFr: "J'ai envoyé le colis ce matin.", answer: "sent", options: ["send", "sent", "sending"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'sent'.",
+                  example: "<i>They have sent the invitation already.</i>", deepDive: "Send / Sent / Sent : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Rencontrer", bv: "Meet", preterit: "met", pp: "met", 
+        { tier: "extra", fr: "Construire", bv: "Build", preterit: "built", pp: "built", 
             variants: [
-                {
-                    id: "meet-past",
-                    sentence: "I _____ her at a conference last year.", sentenceFr: "Je l'ai rencontrée à une conférence l'année dernière.",
-                    answer: "met", options: ["meet", "met", "meeting"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last year') : on utilise la 2e colonne 'met'.",
-                    example: "<i>We met at university.</i>",
-                    deepDive: "Meet / Met / Met : 'met' se prononce [met]."
-                },
-                {
-                    id: "meet-perfect",
-                    sentence: "Have you ever _____ a famous person?", sentenceFr: "As-tu déjà rencontré une personne célèbre ?",
-                    answer: "met", options: ["meet", "met", "meeting"],
-                    rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'met'.",
-                    example: "<i>I have met him twice.</i>",
-                    deepDive: "Meet / Met / Met : prétérit et participe passé identiques."
-                }
+                { id: "build-past", sentence: "They _____ a new bridge across the river.", sentenceFr: "Ils ont construit un nouveau pont sur la rivière.", answer: "built", options: ["build", "built", "building"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'built'.",
+                  example: "<i>He built a treehouse for his kids.</i>", deepDive: "Build / Built / Built : 'built' se prononce [bɪlt]." },
+                { id: "build-passive", sentence: "The castle was _____ in the 12th century.", sentenceFr: "Le château a été construit au XIIe siècle.", answer: "built", options: ["build", "built", "building"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet 'castle' subit l'action : structure passive 'was' + participe passé 'built'.",
+                  example: "<i>The house was built by my grandfather.</i>", deepDive: "Passif au passé = WAS/WERE + participe passé." }
             ]
         },
-        { 
-            fr: "Dormir", bv: "Sleep", preterit: "slept", pp: "slept", 
+        { tier: "extra", fr: "Rencontrer", bv: "Meet", preterit: "met", pp: "met", 
             variants: [
-                {
-                    id: "sleep-past",
-                    sentence: "He _____ for ten hours last night.", sentenceFr: "Il a dormi dix heures la nuit dernière.",
-                    answer: "slept", options: ["sleep", "slept", "sleeping"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('last night') : on utilise la 2e colonne 'slept'.",
-                    example: "<i>She slept through the whole movie.</i>",
-                    deepDive: "Sleep / Slept / Slept : 'slept' se prononce [slept]."
-                },
-                {
-                    id: "sleep-perfect",
-                    sentence: "I haven't _____ well this week.", sentenceFr: "Je n'ai pas bien dormi cette semaine.",
-                    answer: "slept", options: ["sleep", "slept", "sleeping"],
-                    rule: "<b>Present Perfect négatif</b> (HAVE NOT + Participe Passé).",
-                    reason: "L'auxiliaire 'have' (négatif 'haven't') exige le participe passé 'slept'.",
-                    example: "<i>She hasn't slept since the accident.</i>",
-                    deepDive: "Present Perfect négatif = HAVE/HAS + NOT + participe passé."
-                }
+                { id: "meet-past", sentence: "I _____ her at a conference last year.", sentenceFr: "Je l'ai rencontrée à une conférence l'année dernière.", answer: "met", options: ["meet", "met", "meeting"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last year') : on utilise la 2e colonne 'met'.",
+                  example: "<i>We met at university.</i>", deepDive: "Meet / Met / Met : 'met' se prononce [met]." },
+                { id: "meet-perfect", sentence: "Have you ever _____ a famous person?", sentenceFr: "As-tu déjà rencontré une personne célèbre ?", answer: "met", options: ["meet", "met", "meeting"],
+                  rule: "<b>Present Perfect interrogatif</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'met'.",
+                  example: "<i>I have met him twice.</i>", deepDive: "Meet / Met / Met : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Se tenir debout", bv: "Stand", preterit: "stood", pp: "stood", 
+        { tier: "extra", fr: "Dormir", bv: "Sleep", preterit: "slept", pp: "slept", 
             variants: [
-                {
-                    id: "stand-past",
-                    sentence: "She _____ at the back of the room.", sentenceFr: "Elle se tenait au fond de la salle.",
-                    answer: "stood", options: ["stand", "stood", "standing"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'stood'.",
-                    example: "<i>He stood still for a long time.</i>",
-                    deepDive: "Stand / Stood / Stood : 'stood' se prononce [stʊd]."
-                },
-                {
-                    id: "stand-perfect",
-                    sentence: "We have _____ in line for an hour.", sentenceFr: "Nous faisons la queue depuis une heure.",
-                    answer: "stood", options: ["stand", "stood", "standing"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'stood'.",
-                    example: "<i>They have stood by each other for years.</i>",
-                    deepDive: "Stand / Stood / Stood : prétérit et participe passé identiques."
-                }
+                { id: "sleep-past", sentence: "He _____ for ten hours last night.", sentenceFr: "Il a dormi dix heures la nuit dernière.", answer: "slept", options: ["sleep", "slept", "sleeping"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('last night') : on utilise la 2e colonne 'slept'.",
+                  example: "<i>She slept through the whole movie.</i>", deepDive: "Sleep / Slept / Slept : 'slept' se prononce [slept]." },
+                { id: "sleep-perfect", sentence: "I haven't _____ well this week.", sentenceFr: "Je n'ai pas bien dormi cette semaine.", answer: "slept", options: ["sleep", "slept", "sleeping"],
+                  rule: "<b>Present Perfect négatif</b> (HAVE NOT + Participe Passé).", reason: "L'auxiliaire 'have' (négatif 'haven't') exige le participe passé 'slept'.",
+                  example: "<i>She hasn't slept since the accident.</i>", deepDive: "Present Perfect négatif = HAVE/HAS + NOT + participe passé." }
             ]
         },
-        { 
-            fr: "Comprendre", bv: "Understand", preterit: "understood", pp: "understood", 
+        { tier: "extra", fr: "Se tenir debout", bv: "Stand", preterit: "stood", pp: "stood", 
             variants: [
-                {
-                    id: "understand-past",
-                    sentence: "I _____ the instructions clearly.", sentenceFr: "J'ai compris les instructions clairement.",
-                    answer: "understood", options: ["understand", "understood", "understanding"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'understood'.",
-                    example: "<i>She understood the problem immediately.</i>",
-                    deepDive: "Understand / Understood / Understood : 'understood' se prononce [ˌʌndəˈstʊd]."
-                },
-                {
-                    id: "understand-perfect",
-                    sentence: "I have _____ the lesson now.", sentenceFr: "J'ai maintenant compris la leçon.",
-                    answer: "understood", options: ["understand", "understood", "understanding"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'understood'.",
-                    example: "<i>They have understood the risks.</i>",
-                    deepDive: "Understand / Understood / Understood : prétérit et participe passé identiques."
-                }
+                { id: "stand-past", sentence: "She _____ at the back of the room.", sentenceFr: "Elle se tenait au fond de la salle.", answer: "stood", options: ["stand", "stood", "standing"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'stood'.",
+                  example: "<i>He stood still for a long time.</i>", deepDive: "Stand / Stood / Stood : 'stood' se prononce [stʊd]." },
+                { id: "stand-perfect", sentence: "We have _____ in line for an hour.", sentenceFr: "Nous faisons la queue depuis une heure.", answer: "stood", options: ["stand", "stood", "standing"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'stood'.",
+                  example: "<i>They have stood by each other for years.</i>", deepDive: "Stand / Stood / Stood : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Porter (un vêtement)", bv: "Wear", preterit: "wore", pp: "worn", 
+        { tier: "extra", fr: "Comprendre", bv: "Understand", preterit: "understood", pp: "understood", 
             variants: [
-                {
-                    id: "wear-past",
-                    sentence: "She _____ a beautiful dress to the wedding.", sentenceFr: "Elle portait une belle robe au mariage.",
-                    answer: "wore", options: ["wear", "wore", "worn"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'wore'.",
-                    example: "<i>He wore a suit to the interview.</i>",
-                    deepDive: "Wear / Wore / Worn : suite vocalique classique."
-                },
-                {
-                    id: "wear-perfect",
-                    sentence: "I have _____ these shoes for three years.", sentenceFr: "Je porte ces chaussures depuis trois ans.",
-                    answer: "worn", options: ["wear", "wore", "worn"],
-                    rule: "<b>Present Perfect</b> (HAVE + Participe Passé).",
-                    reason: "L'auxiliaire 'have' exige le participe passé 'worn'.",
-                    example: "<i>She has worn that jacket many times.</i>",
-                    deepDive: "Wear / Wore / Worn : la 3e colonne 'worn' prend un -n final."
-                }
+                { id: "understand-past", sentence: "I _____ the instructions clearly.", sentenceFr: "J'ai compris les instructions clairement.", answer: "understood", options: ["understand", "understood", "understanding"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'understood'.",
+                  example: "<i>She understood the problem immediately.</i>", deepDive: "Understand / Understood / Understood : 'understood' se prononce [ˌʌndəˈstʊd]." },
+                { id: "understand-perfect", sentence: "I have _____ the lesson now.", sentenceFr: "J'ai maintenant compris la leçon.", answer: "understood", options: ["understand", "understood", "understanding"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'understood'.",
+                  example: "<i>They have understood the risks.</i>", deepDive: "Understand / Understood / Understood : prétérit et participe passé identiques." }
             ]
         },
-        { 
-            fr: "Se réveiller", bv: "Wake", preterit: "woke", pp: "woken", 
+        { tier: "extra", fr: "Porter (un vêtement)", bv: "Wear", preterit: "wore", pp: "worn", 
             variants: [
-                {
-                    id: "wake-past",
-                    sentence: "I _____ up at six o'clock this morning.", sentenceFr: "Je me suis réveillé à six heures ce matin.",
-                    answer: "woke", options: ["wake", "woke", "woken"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée datée ('this morning') : on utilise la 2e colonne 'woke'.",
-                    example: "<i>She woke up late and missed the bus.</i>",
-                    deepDive: "Wake / Woke / Woken : suite vocalique classique."
-                },
-                {
-                    id: "wake-perfect",
-                    sentence: "The baby has just _____ up.", sentenceFr: "Le bébé vient juste de se réveiller.",
-                    answer: "woken", options: ["wake", "woke", "woken"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'woken'.",
-                    example: "<i>He has woken up early every day this week.</i>",
-                    deepDive: "Wake / Woke / Woken : la 3e colonne 'woken' prend un -n final."
-                }
+                { id: "wear-past", sentence: "She _____ a beautiful dress to the wedding.", sentenceFr: "Elle portait une belle robe au mariage.", answer: "wore", options: ["wear", "wore", "worn"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'wore'.",
+                  example: "<i>He wore a suit to the interview.</i>", deepDive: "Wear / Wore / Worn : suite vocalique classique." },
+                { id: "wear-perfect", sentence: "I have _____ these shoes for three years.", sentenceFr: "Je porte ces chaussures depuis trois ans.", answer: "worn", options: ["wear", "wore", "worn"],
+                  rule: "<b>Present Perfect</b> (HAVE + Participe Passé).", reason: "L'auxiliaire 'have' exige le participe passé 'worn'.",
+                  example: "<i>She has worn that jacket many times.</i>", deepDive: "Wear / Wore / Worn : la 3e colonne 'worn' prend un -n final." }
             ]
         },
-        { 
-            fr: "Lancer / Jeter", bv: "Throw", preterit: "threw", pp: "thrown", 
+        { tier: "extra", fr: "Se réveiller", bv: "Wake", preterit: "woke", pp: "woken", 
             variants: [
-                {
-                    id: "throw-past",
-                    sentence: "He _____ the ball to his dog.", sentenceFr: "Il a lancé le ballon à son chien.",
-                    answer: "threw", options: ["throw", "threw", "thrown"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'threw'.",
-                    example: "<i>She threw the keys on the table.</i>",
-                    deepDive: "Throw / Threw / Thrown : suite vocalique classique."
-                },
-                {
-                    id: "throw-passive",
-                    sentence: "The ball was _____ over the fence.", sentenceFr: "Le ballon a été lancé par-dessus la clôture.",
-                    answer: "thrown", options: ["throw", "threw", "thrown"],
-                    rule: "<b>Voix passive</b> (WAS + Participe Passé).",
-                    reason: "Le sujet 'ball' subit l'action : structure passive 'was' + participe passé 'thrown'.",
-                    example: "<i>The garbage was thrown into the bin.</i>",
-                    deepDive: "Throw / Threw / Thrown : la 3e colonne 'thrown' prend un -n final."
-                }
+                { id: "wake-past", sentence: "I _____ up at six o'clock this morning.", sentenceFr: "Je me suis réveillé à six heures ce matin.", answer: "woke", options: ["wake", "woke", "woken"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée datée ('this morning') : on utilise la 2e colonne 'woke'.",
+                  example: "<i>She woke up late and missed the bus.</i>", deepDive: "Wake / Woke / Woken : suite vocalique classique." },
+                { id: "wake-perfect", sentence: "The baby has just _____ up.", sentenceFr: "Le bébé vient juste de se réveiller.", answer: "woken", options: ["wake", "woke", "woken"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'woken'.",
+                  example: "<i>He has woken up early every day this week.</i>", deepDive: "Wake / Woke / Woken : la 3e colonne 'woken' prend un -n final." }
             ]
         },
-        { 
-            fr: "Grandir / Pousser", bv: "Grow", preterit: "grew", pp: "grown", 
+        { tier: "extra", fr: "Lancer / Jeter", bv: "Throw", preterit: "threw", pp: "thrown", 
             variants: [
-                {
-                    id: "grow-past",
-                    sentence: "She _____ up in a small village.", sentenceFr: "Elle a grandi dans un petit village.",
-                    answer: "grew", options: ["grow", "grew", "grown"],
-                    rule: "<b>Prétérit simple</b>.",
-                    reason: "Action passée et révolue : on utilise la 2e colonne 'grew'.",
-                    example: "<i>He grew tomatoes in his garden.</i>",
-                    deepDive: "Grow / Grew / Grown : suite vocalique classique."
-                },
-                {
-                    id: "grow-perfect",
-                    sentence: "The company has _____ rapidly this year.", sentenceFr: "L'entreprise a grandi rapidement cette année.",
-                    answer: "grown", options: ["grow", "grew", "grown"],
-                    rule: "<b>Present Perfect</b> (HAS + Participe Passé).",
-                    reason: "L'auxiliaire 'has' exige le participe passé 'grown'.",
-                    example: "<i>She has grown a lot since last year.</i>",
-                    deepDive: "Grow / Grew / Grown : la 3e colonne 'grown' prend un -n final."
-                }
+                { id: "throw-past", sentence: "He _____ the ball to his dog.", sentenceFr: "Il a lancé le ballon à son chien.", answer: "threw", options: ["throw", "threw", "thrown"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'threw'.",
+                  example: "<i>She threw the keys on the table.</i>", deepDive: "Throw / Threw / Thrown : suite vocalique classique." },
+                { id: "throw-passive", sentence: "The ball was _____ over the fence.", sentenceFr: "Le ballon a été lancé par-dessus la clôture.", answer: "thrown", options: ["throw", "threw", "thrown"],
+                  rule: "<b>Voix passive</b> (WAS + Participe Passé).", reason: "Le sujet 'ball' subit l'action : structure passive 'was' + participe passé 'thrown'.",
+                  example: "<i>The garbage was thrown into the bin.</i>", deepDive: "Throw / Threw / Thrown : la 3e colonne 'thrown' prend un -n final." }
+            ]
+        },
+        { tier: "extra", fr: "Grandir / Pousser", bv: "Grow", preterit: "grew", pp: "grown", 
+            variants: [
+                { id: "grow-past", sentence: "She _____ up in a small village.", sentenceFr: "Elle a grandi dans un petit village.", answer: "grew", options: ["grow", "grew", "grown"],
+                  rule: "<b>Prétérit simple</b>.", reason: "Action passée et révolue : on utilise la 2e colonne 'grew'.",
+                  example: "<i>He grew tomatoes in his garden.</i>", deepDive: "Grow / Grew / Grown : suite vocalique classique." },
+                { id: "grow-perfect", sentence: "The company has _____ rapidly this year.", sentenceFr: "L'entreprise a grandi rapidement cette année.", answer: "grown", options: ["grow", "grew", "grown"],
+                  rule: "<b>Present Perfect</b> (HAS + Participe Passé).", reason: "L'auxiliaire 'has' exige le participe passé 'grown'.",
+                  example: "<i>She has grown a lot since last year.</i>", deepDive: "Grow / Grew / Grown : la 3e colonne 'grown' prend un -n final." }
             ]
         }
     ];
@@ -2361,9 +1834,11 @@ input[type="text"]:focus {
     let score = 0;
     let phase = 'input';
     let isFrench = false;
-    let mode = 'normal';
+    let mode = 'normal';        // 'normal' ou 'review'
+    let pool = 'mix';           // 'core' ou 'mix' (plus de 'all')
     let totalAtStart = 0;
     let currentFilter = 'all';
+    let currentTierFilter = 'all';  // 'core' ou 'all' (filtre d'affichage du modal)
 
     let verbStats = {};
     let questionCounter = 0;
@@ -2375,6 +1850,7 @@ input[type="text"]:focus {
                 score,
                 verbStats,
                 mode,
+                pool,
                 questionCounter
             }));
         } catch (e) { /* quota */ }
@@ -2424,6 +1900,10 @@ input[type="text"]:focus {
             score = data.score || 0;
             verbStats = data.verbStats || {};
             mode = data.mode || 'normal';
+            pool = data.pool || 'mix';
+            // Migration douce : 'all' → 'mix' (l'ancien pool 'all' n'existe plus)
+            if (pool === 'all') pool = 'mix';
+            if (!['core', 'mix'].includes(pool)) pool = 'mix';
             questionCounter = data.questionCounter || 0;
         } catch (e) { /* corrupt */ }
     }
@@ -2459,7 +1939,6 @@ input[type="text"]:focus {
         s.mastered = allSeen && noDominantWrong && s.correct >= variantIds.length;
     }
 
-    // ===== CORRECTIF : absorbe les erreurs quand la variante est stabilisée =====
     function updateVerbStat(bv, variantId, isCorrect) {
         const s = getVerbStat(bv);
         const vs = getVariantStat(bv, variantId);
@@ -2468,7 +1947,6 @@ input[type="text"]:focus {
         if (isCorrect) {
             s.correct++;
             vs.correct++;
-            // Si la variante est maintenant plus réussie que ratée, on absorbe les erreurs
             if (vs.correct > vs.wrong) {
                 vs.wrong = 0;
             }
@@ -2495,15 +1973,23 @@ input[type="text"]:focus {
     }
 
     // ===================== MOTEUR INTELLIGENT =====================
+    // Filtre les verbes selon le pool actif ('core' ou 'mix')
+    // En 'mix', on garde TOUS les verbes (la pondération se fait dans computeWeight).
+    function getActiveVerbs() {
+        if (pool === 'core') return verbsDatabase.filter(v => v.tier === 'core');
+        return verbsDatabase; // 'mix' = tous
+    }
+
     function buildAllVariants() {
         const list = [];
-        verbsDatabase.forEach(verbObj => {
+        getActiveVerbs().forEach(verbObj => {
             verbObj.variants.forEach(variantObj => {
                 list.push({
                     fr: verbObj.fr,
                     bv: verbObj.bv,
                     preterit: verbObj.preterit,
                     pp: verbObj.pp,
+                    tier: verbObj.tier,
                     variantId: variantObj.id,
                     ...variantObj
                 });
@@ -2530,6 +2016,12 @@ input[type="text"]:focus {
 
         if (s.mastered) weight *= 0.25;
 
+        // Pondération spécifique au mode Mix
+        if (pool === 'mix') {
+            if (item.tier === 'core') weight *= 1.6;
+            else weight *= 0.7;
+        }
+
         weight *= 0.8 + Math.random() * 0.4;
 
         return Math.max(0, weight);
@@ -2555,9 +2047,6 @@ input[type="text"]:focus {
         return weighted[weighted.length - 1].item;
     }
 
-    // ===== CORRECTIF : fonction utilitaire centrale =====
-    // Une variante est "faible" si elle a été ratée plus souvent que réussie,
-    // OU si le verbe global est faible et que cette variante n'a jamais été réussie.
     function isVariantWeak(item) {
         const s = getVerbStat(item.bv);
         const vs = getVariantStat(item.bv, item.variantId);
@@ -2571,22 +2060,81 @@ input[type="text"]:focus {
         totalAtStart = buildAllVariants().length;
     }
 
-    // ===== CORRECTIF : utilise isVariantWeak pour être cohérent avec updateReviewButton =====
+    // Mode révision : TOUTES les erreurs, tous pools confondus
     function initReviewQueue() {
         questionQueue = [];
-        const all = buildAllVariants();
+        const all = [];
+        verbsDatabase.forEach(verbObj => {
+            verbObj.variants.forEach(variantObj => {
+                all.push({
+                    fr: verbObj.fr,
+                    bv: verbObj.bv,
+                    preterit: verbObj.preterit,
+                    pp: verbObj.pp,
+                    tier: verbObj.tier,
+                    variantId: variantObj.id,
+                    ...variantObj
+                });
+            });
+        });
         const filtered = all.filter(item => isVariantWeak(item));
         totalAtStart = filtered.length;
         questionQueue = filtered;
     }
 
-    // ===== CORRECTIF : utilise isVariantWeak pour que le compteur décrémente après correction =====
     function updateReviewButton() {
-        const all = buildAllVariants();
-        const weakCount = all.filter(item => isVariantWeak(item)).length;
+        let weakCount = 0;
+        verbsDatabase.forEach(verbObj => {
+            verbObj.variants.forEach(variantObj => {
+                const item = { bv: verbObj.bv, variantId: variantObj.id };
+                if (isVariantWeak(item)) weakCount++;
+            });
+        });
         const btn = document.getElementById('review-btn');
         btn.textContent = weakCount > 0 ? `🎯 Mes erreurs (${weakCount})` : '🎯 Mes erreurs';
         btn.disabled = weakCount === 0;
+    }
+
+    // ===== Gestion du pool ('core' ou 'mix') =====
+    function setPool(newPool) {
+        if (!['core', 'mix'].includes(newPool)) return;
+        if (pool === newPool && mode === 'normal') return;
+        pool = newPool;
+        if (mode === 'review') {
+            initReviewQueue();
+            if (questionQueue.length === 0) {
+                mode = 'normal';
+                document.getElementById('mode-label').textContent = 'Mode : normal';
+                initQueue();
+            }
+        } else {
+            initQueue();
+        }
+        updatePoolButtons();
+        saveState();
+        loadQuestion();
+    }
+
+    function updatePoolButtons() {
+        ['core', 'mix'].forEach(p => {
+            const btn = document.getElementById('pool-' + p);
+            if (btn) btn.classList.toggle('active', p === pool);
+        });
+    }
+
+    // ===== NOUVEAU : filtre tier du modal (affichage uniquement) =====
+    function setTierFilter(tier) {
+        if (!['core', 'all'].includes(tier)) return;
+        currentTierFilter = tier;
+        updateTierFilterButtons();
+        renderVerbTable();
+    }
+
+    function updateTierFilterButtons() {
+        ['core', 'all'].forEach(t => {
+            const btn = document.getElementById('tier-filter-' + t);
+            if (btn) btn.classList.toggle('active', t === currentTierFilter);
+        });
     }
 
     // ===================== CORRECTION DU BUG : startReviewMode =====================
@@ -2882,6 +2430,7 @@ input[type="text"]:focus {
 
     // ===================== MODAL =====================
     function openModal() {
+        updateTierFilterButtons();
         renderVerbTable();
         document.getElementById('verb-modal').style.display = 'flex';
         document.querySelector('.close-btn').focus();
@@ -2903,7 +2452,12 @@ input[type="text"]:focus {
         const tbody = document.getElementById('verb-table-body');
         tbody.innerHTML = '';
 
+        // Filtre tier (affichage) + filtre statut
         verbsDatabase.forEach(v => {
+            // Filtre tier
+            if (currentTierFilter === 'core' && v.tier !== 'core') return;
+            // (si 'all', on garde tout)
+
             const s = getVerbStat(v.bv);
             let filterMatch = true;
             if (currentFilter === 'weak') filterMatch = s.wrong > 0 && !s.mastered;
@@ -2918,10 +2472,12 @@ input[type="text"]:focus {
             else if (s.wrong > 0) { masteryClass = 'mastery-weak'; masteryLabel = 'À revoir'; }
             else if (s.correct > 0) { masteryClass = 'mastery-learning'; masteryLabel = 'En cours'; }
 
+            const tierBadge = v.tier === 'core' ? '<span class="tier-badge" title="Verbe principal">⭐</span>' : '<span class="tier-badge" title="Autre verbe">📚</span>';
+
             const tr = document.createElement('tr');
             tr.innerHTML =
                 '<td><span class="verb-mastery ' + masteryClass + '" title="' + masteryLabel + '"></span>' + masteryLabel + '</td>' +
-                '<td>' + v.fr + '</td>' +
+                '<td>' + v.fr + ' ' + tierBadge + '</td>' +
                 '<td><strong>' + v.bv + '</strong></td>' +
                 '<td>' + v.preterit + ' / ' + v.pp + '</td>';
             tbody.appendChild(tr);
@@ -2957,6 +2513,8 @@ input[type="text"]:focus {
     loadState();
     document.getElementById('score').textContent = score;
     updateReviewButton();
+    updatePoolButtons();
+    updateTierFilterButtons();
     attachSanitizers();
 
     if (mode === 'review') {
